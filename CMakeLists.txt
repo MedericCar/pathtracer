@@ -1,13 +1,23 @@
 cmake_minimum_required(VERSION 3.16.3)
 
-project(Raytracer VERSION 1.0
-                  DESCRIPTION "Raytracer for the first TP of ISIM"
-                  LANGUAGE CXX)
+project(Raytracer LANGUAGES CXX
+                  VERSION 1.0
+                  DESCRIPTION "Raytracer for the first TP of ISIM")
 
 # Specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+   
+include(FetchContent)
 
-add_executable(raytracer "src/main.cpp")
+# Test management
+option(ENABLE_UNIT_TESTS "Enable unit tests" ON)
+message(STATUS "Enable testing: ${ENABLE_UNIT_TESTS}")
 
-# PUBLIC : any target that links to this target must also need the include dir.
+if (${ENABLE_UNIT_TESTS}) 
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
+# The compiled library and executable is here
+add_subdirectory(src)
