@@ -1,5 +1,8 @@
 set(SRC_RAYTRACER "vector.cpp"
-                  "image.cpp")
+                  "image.cpp"
+                  "uniform_texture.cpp"
+                  "object.cpp"
+                  "sphere.cpp")
 
 add_library(raytracer ${SRC_RAYTRACER})
 

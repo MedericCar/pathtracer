@@ -21,6 +21,12 @@ namespace isim {
         Vector3 operator+(const Vector3 &v) const;
         Vector3 operator-(const Vector3 &v) const;
 
+        float euclidean_norm() const;
+
+        float dot_product(const Vector3 &v) const;
+
+        Vector3 normalize() const;
+
     };
     
     std::ostream& operator<<(std::ostream &out, Vector3 &vect);

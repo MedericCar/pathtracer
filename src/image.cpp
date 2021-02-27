@@ -13,6 +13,10 @@ namespace isim {
         delete pixels;
     }
 
+    Rgb* Image::get_pixels() { 
+        return pixels;
+    }
+
     void Image::save_to_ppm(std::string filename) {
         std::ofstream ofs(filename, std::ios::binary);
 

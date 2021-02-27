@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "vector.hh"
 
 namespace isim {
@@ -15,11 +17,24 @@ namespace isim {
     Vector3 Vector3::operator+(const Vector3 &v) const {
         return Vector3(x+v.get_x(), y+v.get_y(), z+v.get_z());
     }
-    
+
     Vector3 Vector3::operator-(const Vector3 &v) const {
         return Vector3(x-v.get_x(), y-v.get_y(), z-v.get_z());
     }
-    
+
+    float Vector3::dot_product(const Vector3 &v) const {
+        return x*v.get_x() + y*v.get_y(), z*v.get_z();
+    }
+
+    float Vector3::euclidean_norm() const {
+        return std::sqrt((x * x) + (y * y) + (z * z));
+    }
+
+    Vector3 Vector3::normalize() const {
+        Vector3 normalized(*this);
+        return normalized * (1 / euclidean_norm());
+    }
+
     std::ostream& operator<<(std::ostream &out, Vector3 &vect) {
         out << "[ " << vect.get_x() << ", " << vect.get_x()
             << ", " << vect.get_z() << " ]\n";
