@@ -17,7 +17,7 @@ namespace isim {
         TextureConstants constants;
     public:
         TextureMaterial() = default;
-        virtual ~TextureMaterial() = 0;
+        virtual ~TextureMaterial() = default;
 
         virtual TextureConstants
         get_constants(const Vector3& pos) const = 0;

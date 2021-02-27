@@ -11,7 +11,7 @@ namespace isim {
 
     public:
         Vector3(float x_, float y_, float z_);
-        ~Vector3();
+        ~Vector3() = default;
 
         float get_x() const { return x; }
         float get_y() const { return y; }
@@ -30,5 +30,6 @@ namespace isim {
     };
     
     std::ostream& operator<<(std::ostream &out, Vector3 &vect);
+    std::ostream& operator<<(std::ostream &out, const Vector3 &vect);
 
 }

@@ -4,11 +4,7 @@
 
 namespace isim {
 
-    Vector3::Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {
-    }
-    
-    Vector3::~Vector3() {
-    }
+    Vector3::Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
 
     Vector3 Vector3::operator*(const float &l) const {
         return Vector3(x*l, y*l, z*l);
@@ -31,12 +27,18 @@ namespace isim {
     }
 
     Vector3 Vector3::normalize() const {
-        Vector3 normalized(*this);
-        return normalized * (1 / euclidean_norm());
+        Vector3 copy(*this);
+        return copy * (1 / euclidean_norm());
     }
 
     std::ostream& operator<<(std::ostream &out, Vector3 &vect) {
-        out << "[ " << vect.get_x() << ", " << vect.get_x()
+        out << "[ " << vect.get_x() << ", " << vect.get_y()
+            << ", " << vect.get_z() << " ]\n";
+        return out;
+    }
+
+    std::ostream& operator<<(std::ostream &out, const Vector3 &vect) {
+        out << "[ " << vect.get_x() << ", " << vect.get_y()
             << ", " << vect.get_z() << " ]\n";
         return out;
     }

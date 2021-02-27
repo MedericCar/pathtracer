@@ -1,24 +1,25 @@
 #include <math.h>
+#include <iostream>
 
 #include "sphere.hh"
 
 namespace isim {
 
     Sphere::Sphere(TextureMaterial* _material, Vector3 _center, float _radius)
-     : Object(_material), center(_center), radius(_radius) {
-
-    }
+     : Object(_material), center(_center), radius(_radius) {}
     
     bool Sphere::is_intersect(const Ray& ray) const {
         Vector3 oc = center - ray.origin;
         float d_om = oc.dot_product(ray.direction);
-        float d_cm_2 = oc.dot_product(oc) + d_om * d_om;
+        float d_cm_2 = oc.dot_product(oc) - d_om * d_om;
+
+        std::cout << d_cm_2;
 
         float radius2 = radius * radius;
-        if (d_cm_2 > radius2) 
-            return false; 
+        if (d_cm_2 > radius2)
+            return false;
 
-        float d_im = std::sqrt(d_cm_2 - radius2);
+        float d_im = std::sqrt(radius2 - d_cm_2);
         float t0 = d_om - d_im;
         float t1 = d_om + d_im;
 

@@ -7,7 +7,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 set(SRC_TESTS "main.cpp"
-              "test_vector.cpp")
+              "test_vector.cpp"
+              "test_sphere.cpp")
 
 add_executable(tests ${SRC_TESTS})
 

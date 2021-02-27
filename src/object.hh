@@ -14,7 +14,7 @@ namespace isim {
 
     public:
         Object(TextureMaterial* _material);
-        virtual ~Object() = 0;
+        virtual ~Object() = default;
 
         virtual bool is_intersect(const Ray& ray) const = 0;
 

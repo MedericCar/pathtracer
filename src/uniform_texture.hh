@@ -11,7 +11,7 @@ namespace isim {
 
     public:
         UniformTexture(TextureConstants c);
-        ~UniformTexture() = default;
+        ~UniformTexture() {};
 
         TextureConstants get_constants(const Vector3& pos) const final;
     };
