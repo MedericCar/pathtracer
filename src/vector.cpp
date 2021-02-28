@@ -31,6 +31,13 @@ namespace isim {
         return copy * (1 / euclidean_norm());
     }
 
+    Vector3 cross_product(const Vector3& v1, const Vector3& v2) {
+        return Vector3(v1.get_y() * v2.get_z() - v1.get_z() * v2.get_y(),
+                       v1.get_z() * v2.get_x() - v1.get_x() * v2.get_z(),
+                       v1.get_x() * v2.get_y() - v1.get_y() * v2.get_x());
+    }
+
+
     std::ostream& operator<<(std::ostream &out, Vector3 &vect) {
         out << "[ " << vect.get_x() << ", " << vect.get_y()
             << ", " << vect.get_z() << " ]\n";

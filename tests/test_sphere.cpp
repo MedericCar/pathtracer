@@ -38,3 +38,15 @@ TEST(sphere, ray_after) {
     
     ASSERT_FALSE(sphere.is_intersect(ray));
 }
+
+TEST(sphere, ray_in) {
+    isim::Ray ray = {
+        .direction = isim::Vector3(1, 1, 1),
+        .origin = isim::Vector3(0, 0, 0)
+    };
+
+    auto texture = new isim::UniformTexture({isim::Rgb(255, 0, 0), 1, 1});
+    isim::Sphere sphere(texture, isim::Vector3(0, 0, 0), 1);
+    
+    ASSERT_FALSE(sphere.is_intersect(ray));
+}

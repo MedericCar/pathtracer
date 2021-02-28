@@ -28,6 +28,8 @@ namespace isim {
         Vector3 normalize() const;
 
     };
+
+    Vector3 cross_product(const Vector3 &v1, const Vector3 &v2);
     
     std::ostream& operator<<(std::ostream &out, Vector3 &vect);
     std::ostream& operator<<(std::ostream &out, const Vector3 &vect);
