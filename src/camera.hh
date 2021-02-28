@@ -6,7 +6,7 @@
 
 namespace isim {
 
-    Vector3 up_world = Vector3(0, 1, 0);
+    extern Vector3 const up_world;
 
     class Camera {
 

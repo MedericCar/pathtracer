@@ -1,3 +1,4 @@
+#include <iostream>
 #include <math.h>
 
 #include "vector.hh"
@@ -19,7 +20,7 @@ namespace isim {
     }
 
     float Vector3::dot_product(const Vector3 &v) const {
-        return x*v.get_x() + y*v.get_y(), z*v.get_z();
+        return x*v.get_x() + y*v.get_y() + z*v.get_z();
     }
 
     float Vector3::euclidean_norm() const {
@@ -36,7 +37,6 @@ namespace isim {
                        v1.get_z() * v2.get_x() - v1.get_x() * v2.get_z(),
                        v1.get_x() * v2.get_y() - v1.get_y() * v2.get_x());
     }
-
 
     std::ostream& operator<<(std::ostream &out, Vector3 &vect) {
         out << "[ " << vect.get_x() << ", " << vect.get_y()

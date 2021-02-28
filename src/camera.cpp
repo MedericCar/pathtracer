@@ -4,6 +4,8 @@
 
 namespace isim {
 
+    Vector3 const up_world = Vector3(0, 1, 0);
+
     Camera::Camera(Vector3 _center, Vector3 _target, float _fov, int _img_w,
                    int _img_h) 
         : center(_center),
@@ -46,7 +48,7 @@ namespace isim {
         Vector3 center_world = camera2world.homogeneous_mult(center_cam);
 
         Ray ray = {
-            .direction = pixel_world - center_world,
+            .direction = (pixel_world - center_world).normalize(),
             .origin = center_world
         };
 

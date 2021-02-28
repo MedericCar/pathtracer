@@ -4,7 +4,8 @@ set(SRC_RAYTRACER "vector.cpp"
                   "object.cpp"
                   "sphere.cpp"
                   "camera.cpp"
-                  "matrix.cpp")
+                  "matrix.cpp"
+                  "scene.cpp")
 
 add_library(raytracer ${SRC_RAYTRACER})
 
