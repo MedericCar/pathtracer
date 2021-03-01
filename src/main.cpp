@@ -1,5 +1,7 @@
 #include <iostream>
+#include <optional>
 
+#include "vector.hh"
 #include "image.hh"
 #include "scene.hh"
 #include "sphere.hh"
@@ -20,8 +22,9 @@ int main(int argc, char const *argv[])
 
     auto scene = isim::Scene(camera);
     auto texture = new isim::UniformTexture({isim::Rgb(255, 0, 0), 1, 1});
+    auto texture2 = new isim::UniformTexture({isim::Rgb(255, 255, 0), 1, 1});
     auto sphere = new isim::Sphere(texture, isim::Vector3(4, 2, 0), 0.5);
-    auto sphere2 = new isim::Sphere(texture, isim::Vector3(4, -3.5, 0), 0.2);
+    auto sphere2 = new isim::Sphere(texture2, isim::Vector3(4, -3.5, 0), 0.2);
     scene.add_object(sphere);
     scene.add_object(sphere2);
     
@@ -31,10 +34,11 @@ int main(int argc, char const *argv[])
             //std::cout << ray.direction;
             //std::cout << ray.origin;
             for (auto p : scene.get_objects()) {
-                if (p->is_intersect(ray))
-                    pixels[i * img_w + j] += isim::Rgb(0, 250, 67);
-                else
-                    pixels[i * img_w + j] += isim::Rgb(100);
+                std::optional<isim::Vector3> intersection = p->is_intersect(ray);
+                if (intersection) {
+                    isim::Vector3 pos = intersection.value();
+                    pixels[i * img_w + j] = p->get_texture_constants(pos).color;
+                }
             }
         }
     }

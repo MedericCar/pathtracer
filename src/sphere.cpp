@@ -8,7 +8,7 @@ namespace isim {
     Sphere::Sphere(TextureMaterial* _material, Vector3 _center, float _radius)
      : Object(_material), center(_center), radius(_radius) {}
     
-    bool Sphere::is_intersect(const Ray& ray) const {
+    std::optional<Vector3> Sphere::is_intersect(const Ray& ray) const {
         Vector3 oc = center - ray.origin;
         float d_om = oc.dot_product(ray.direction);
         float d_cm_2 = oc.dot_product(oc) - d_om * d_om;
@@ -18,7 +18,7 @@ namespace isim {
         float radius2 = radius * radius;
         if (d_cm_2 > radius2) {
             //std::cout << "outside sphere";
-            return false; // line of the ray is outside of the sphere
+            return std::nullopt; // line of the ray is outside of the sphere
         }
 
         float d_im = std::sqrt(radius2 - d_cm_2);
@@ -35,7 +35,7 @@ namespace isim {
             //std::cout << "ray_ori:" << ray.direction;
             //std::cout << "t0:" << t0 << "\n";
             //std::cout << "t1:" << t1 << "\n\n";
-            return false;  // ray origin is in the sphere
+            return std::nullopt;  // ray origin is in the sphere
         }
 
         if (t0 > t1)
@@ -44,10 +44,10 @@ namespace isim {
         if (t0 < 0) { // sign depends on position of ray to center
             t0 = t1; // if t0 is negative, let's use t1 instead 
             if (t0 < 0)
-                return false; // t0 and t1 < 0, ray is after the sphere
+                return std::nullopt; // t0 and t1 < 0, ray is after the sphere
         }
  
-        return true; 
+        return std::make_optional<Vector3>(ray.direction * t0); 
     }
 
     Vector3 Sphere::get_surface_normal(const Vector3& pos) const {
