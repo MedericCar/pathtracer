@@ -4,7 +4,7 @@
 
 namespace isim {
 
-    Vector3 const up_world = Vector3(0, 1, 0);
+    Vector3 const up_cam = Vector3(0, 1, 0);
 
     Camera::Camera(Vector3 _center, Vector3 _target, float _fov, int _img_w,
                    int _img_h) 
@@ -16,8 +16,8 @@ namespace isim {
                 
         // FIXME : Look-At method issue when camera vertically oriented.
         Vector3 forward = (center - target).normalize();
-        Vector3 right = cross_product(up_world, forward).normalize();
-        Vector3 up = cross_product(forward, right);
+        Vector3 right = cross_product(forward, up_cam).normalize();
+        Vector3 up = cross_product(right, forward);
 
         camera2world.m[0][0] = right.get_x();
         camera2world.m[0][1] = right.get_y(); 
@@ -36,7 +36,7 @@ namespace isim {
     Camera::~Camera() {
     }
 
-    Ray Camera::get_pixel_ray(float x, float y) {
+    Ray Camera::get_pixel_ray(float x, float y) const {
         float img_ratio = img_w / img_h;
         float alpha = fov * M_PI / 180;
         float xp_cam = (2 * ((x + 0.5) / img_w) - 1) * tan(alpha / 2) * img_ratio;

@@ -6,7 +6,7 @@
 
 namespace isim {
 
-    extern Vector3 const up_world;
+    extern Vector3 const up_cam;
 
     class Camera {
 
@@ -22,7 +22,7 @@ namespace isim {
 
         ~Camera();
 
-        Ray get_pixel_ray(float x, float y);
+        Ray get_pixel_ray(float x, float y) const;
 
     };
 
