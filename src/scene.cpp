@@ -19,6 +19,10 @@ namespace isim {
     const std::vector<Object*>& Scene::get_objects() const {
         return objects;
     }
+    
+    const std::vector<Light*>& Scene::get_lights() const {
+        return lights;
+    }
 
     void Scene::add_object(Object* obj) {
         objects.push_back(obj);

@@ -5,7 +5,10 @@ set(SRC_RAYTRACER "vector.cpp"
                   "sphere.cpp"
                   "camera.cpp"
                   "matrix.cpp"
-                  "scene.cpp")
+                  "scene.cpp"
+                  "render.cpp"
+                  "point_light.cpp"
+                  "color.cpp")
 
 add_library(raytracer ${SRC_RAYTRACER})
 

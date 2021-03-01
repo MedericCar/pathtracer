@@ -7,7 +7,7 @@ namespace isim {
     Matrix::~Matrix() {
     }
     
-    Vector3 Matrix::homogeneous_mult(const Vector3& v) {
+    Vector3 Matrix::homogeneous_mult(const Vector3& v) const {
         float a, b, c, w; 
         float x = v.get_x();
         float y = v.get_y();

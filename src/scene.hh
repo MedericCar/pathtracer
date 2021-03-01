@@ -21,6 +21,7 @@ namespace isim {
 
         const Camera& get_camera() const;
         const std::vector<Object*>& get_objects() const;
+        const std::vector<Light*>& get_lights() const;
 
         void add_object(Object* obj);
         void add_light(Light* light);

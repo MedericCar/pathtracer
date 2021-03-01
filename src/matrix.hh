@@ -18,7 +18,7 @@ namespace isim {
         Matrix();
         ~Matrix();
 
-        Vector3 homogeneous_mult(const Vector3& v);
+        Vector3 homogeneous_mult(const Vector3& v) const;
     };
 
 }

@@ -9,15 +9,19 @@ namespace isim {
     class Image {
         
         private:
-            int sx, sy;
             int length;
             Rgb* pixels;
+
+        public:
+            int h, w;
             
         public:
-            Image(int _sx, int _sy);
+            Image(int _h, int _w);
             ~Image();
 
             Rgb* get_pixels();
+
+            void set_pixel(int i, int j, Rgb c);
 
             void save_to_ppm(std::string filename);
     };
