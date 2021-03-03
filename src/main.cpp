@@ -23,15 +23,15 @@ int main(int argc, char const *argv[])
     auto camera = isim::Camera(cam_center, cam_target, 90, img_w, img_h);
 
     auto scene = isim::Scene(camera);
-    auto texture = new isim::UniformTexture({isim::Rgb(255, 0, 0), 1, 1});
-    auto texture2 = new isim::UniformTexture({isim::Rgb(255, 255, 0), 1, 1});
+    auto texture = new isim::UniformTexture({isim::Rgb(255, 0, 0), 1, 1, 0.9});
+    auto texture2 = new isim::UniformTexture({isim::Rgb(255, 255, 0), 2, 1, 1});
     auto sphere = new isim::Sphere(texture, isim::Vector3(10, 0, 0), 2);
     auto sphere2 = new isim::Sphere(texture2, isim::Vector3(2, 0.5, 0), 0.5);
     scene.add_object(sphere);
     scene.add_object(sphere2);
 
-    auto light = new isim::PointLight(isim::Vector3(1, 1, 1));
-    auto light2 = new isim::PointLight(isim::Vector3(5, 2, 5));
+    auto light = new isim::PointLight(isim::Vector3(0, 1, 1));
+    auto light2 = new isim::PointLight(isim::Vector3(-5, 2, 10));
     //scene.add_light(light);
     scene.add_light(light2);
     
