@@ -35,11 +35,11 @@ namespace isim {
     }
 
     Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
-        Rgb color = Rgb(25); 
+        Rgb color = Rgb(10); 
         auto nearest_obj = find_nearest_intersection(scene.get_objects(), ray);
 
-        //if (!nearest_obj.has_value() && depth <= 1)
-        //    return Rgb(223, 236, 255);
+        if (!nearest_obj.has_value() && depth <= 1)
+            return Rgb(168, 202, 255);
 
         if (!nearest_obj.has_value() || depth == MAX_DEPTH)
             return color;
@@ -52,7 +52,8 @@ namespace isim {
 
         for (auto p : scene.get_lights()) {
             Ray light_ray = p->get_ray(pos);
-            if (!obj->is_intersect(light_ray))
+            auto light_inter = find_nearest_intersection(scene.get_objects(), light_ray);
+            if (!light_inter || light_inter.value().first != obj)
                 continue;
 
             Vector3 l = light_ray.direction * -1;
