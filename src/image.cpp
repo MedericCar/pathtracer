@@ -18,7 +18,7 @@ namespace isim {
     }
     
     void Image::set_pixel(int i, int j, Rgb c) {
-        pixels[j * w + i] = c;
+        pixels[i + j * w] = c;
     }
 
     void Image::save_to_ppm(std::string filename) {

@@ -20,7 +20,7 @@ namespace isim {
     public:
         Camera(Vector3 center, Vector3 target, float fov, int img_w, int img_h);
 
-        ~Camera();
+        ~Camera() = default;
 
         Ray get_pixel_ray(float x, float y) const;
 

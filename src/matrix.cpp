@@ -1,11 +1,6 @@
 #include "matrix.hh"
 
 namespace isim {
-
-    Matrix::Matrix() {}
-
-    Matrix::~Matrix() {
-    }
     
     Vector3 Matrix::homogeneous_mult(const Vector3& v) const {
         float a, b, c, w; 

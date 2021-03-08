@@ -38,9 +38,11 @@ namespace isim {
         Rgb color = Rgb(10); 
         auto nearest_obj = find_nearest_intersection(scene.get_objects(), ray);
 
+        // Set background
         if (!nearest_obj.has_value() && depth <= 1)
             return Rgb(168, 202, 255);
 
+        // Recursion stopping case
         if (!nearest_obj.has_value() || depth == MAX_DEPTH)
             return color;
 
@@ -52,22 +54,32 @@ namespace isim {
 
         for (auto p : scene.get_lights()) {
             Ray light_ray = p->get_ray(pos);
-            auto light_inter = find_nearest_intersection(scene.get_objects(), light_ray);
+
+            // Shadows
+            auto light_inter = find_nearest_intersection(scene.get_objects(), 
+                                                         light_ray);
             if (!light_inter || light_inter.value().first != obj)
                 continue;
 
+            // Diffuse component
             Vector3 l = light_ray.direction * -1;
             float l_dot_n = l.dot_product(n);
+            color += texture.color * texture.kd * l_dot_n; 
+
+            // Specular component
             Vector3 r = n * 2 * l_dot_n - l;
             float v_dot_r = (ray.direction * -1).dot_product(r);
-
-            color += texture.color * texture.diffusivity * l_dot_n; 
-            color += texture.color * texture.specularity * std::max(0.0, pow(v_dot_r, 7));
+            color += texture.color * texture.ks
+                     * std::max(0.0, pow(v_dot_r, 7));
         }
 
-        Ray reflect_ray = Ray{.direction=n * -2 * ray.direction.dot_product(n) + ray.direction, .origin=pos+n*0.01};
+        // Reflection
+        Ray reflect_ray = Ray{
+            .direction = ray.direction - n * 2 * ray.direction.dot_product(n),
+            .origin = pos + n * 0.01
+        };
         float k = (float)(color.r + color.g + color.b) / (255 * 3);
-        color += cast_ray(scene, reflect_ray, depth + 1) * texture.reflectivity * k;
+        color += cast_ray(scene, reflect_ray, depth + 1) * texture.kr * k;
 
         return color;
 

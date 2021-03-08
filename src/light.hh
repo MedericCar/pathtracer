@@ -4,9 +4,6 @@ namespace isim {
 
     class Light {
     
-    private:
-        /* data */
-    
     public:
         Light() = default;
         virtual ~Light() = default;

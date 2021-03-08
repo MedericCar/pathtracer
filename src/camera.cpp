@@ -19,10 +19,6 @@ namespace isim {
         Vector3 right = cross_product(up_cam, forward).normalize();
         Vector3 up = cross_product(forward, right);
 
-        std::cout << "UP : " << up;
-        std::cout << "RIGHT : " << right;
-        std::cout << "FORWARD : " << forward;
-
         camera2world.m[0][0] = right.get_x();
         camera2world.m[0][1] = right.get_y(); 
         camera2world.m[0][2] = right.get_z(); 
@@ -37,13 +33,11 @@ namespace isim {
         camera2world.m[3][2] = center.get_z(); 
     }
 
-    Camera::~Camera() {
-    }
-
     Ray Camera::get_pixel_ray(float x, float y) const {
         float img_ratio = (float) img_w / (float) img_h;
         float alpha = fov * M_PI / 180;
-        float xp_cam = (2 * ((x + 0.5) / (float) img_w) - 1) * tan(alpha / 2) * img_ratio;
+        float xp_cam = (2 * ((x + 0.5) / (float) img_w) - 1) * tan(alpha / 2) 
+                       * img_ratio;
         float yp_cam = (1 - 2 * ((y + 0.5) / (float) img_h)) * tan(alpha / 2);
 
         Vector3 pixel_cam = Vector3(xp_cam, yp_cam, -1);

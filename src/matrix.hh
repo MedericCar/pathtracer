@@ -15,8 +15,8 @@ namespace isim {
         };
 
     public:
-        Matrix();
-        ~Matrix();
+        Matrix() = default;
+        ~Matrix() = default;
 
         Vector3 homogeneous_mult(const Vector3& v) const;
     };

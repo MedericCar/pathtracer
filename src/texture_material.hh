@@ -7,9 +7,9 @@ namespace isim {
 
     struct TextureConstants {
         Rgb color;
-        float diffusivity;
-        float reflectivity;
-        float specularity;
+        float kd;  // diffusivity
+        float kr;  // reflectivity
+        float ks;  // specularity
     };
 
     class TextureMaterial {

@@ -13,11 +13,8 @@ namespace isim {
         float d_om = oc.dot_product(ray.direction);
         float d_cm_2 = oc.dot_product(oc) - d_om * d_om;
         
-        //std::cout << d_om << " " << d_cm_2 << "\n";
-
         float radius2 = radius * radius;
         if (d_cm_2 > radius2) {
-            //std::cout << "outside sphere";
             return std::nullopt; // line of the ray is outside of the sphere
         }
 
@@ -25,16 +22,7 @@ namespace isim {
         float t0 = d_om - d_im;
         float t1 = d_om + d_im;
 
-        //std::cout << t0 << " " << t1 << "\n";
-
         if (t0 * t1 < 0) {
-            //std::cout << "in sphere" << "\n";
-            //std::cout << "OM " << oc << ray.direction << oc.dot_product(ray.direction) << "\n";
-            //std::cout << "center:" << center;
-            //std::cout << "radius: " << radius << "\n";
-            //std::cout << "ray_ori:" << ray.direction;
-            //std::cout << "t0:" << t0 << "\n";
-            //std::cout << "t1:" << t1 << "\n\n";
             return std::nullopt;  // ray origin is in the sphere
         }
 
