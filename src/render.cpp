@@ -35,8 +35,11 @@ namespace isim {
     }
 
     Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
-        Rgb color = Rgb(0); 
+        Rgb color = Rgb(25); 
         auto nearest_obj = find_nearest_intersection(scene.get_objects(), ray);
+
+        //if (!nearest_obj.has_value() && depth <= 1)
+        //    return Rgb(223, 236, 255);
 
         if (!nearest_obj.has_value() || depth == MAX_DEPTH)
             return color;
@@ -46,7 +49,6 @@ namespace isim {
         TextureConstants texture = obj->get_texture_constants(pos);
 
         Vector3 n = obj->get_surface_normal(pos);
-        
 
         for (auto p : scene.get_lights()) {
             Ray light_ray = p->get_ray(pos);
@@ -58,12 +60,13 @@ namespace isim {
             Vector3 r = n * 2 * l_dot_n - l;
             float v_dot_r = (ray.direction * -1).dot_product(r);
 
-            Ray reflect_ray = Ray{.direction=r, .origin=pos+n*0.01};
-            color += cast_ray(scene, reflect_ray, depth + 1) * texture.reflectivity;
-            
             color += texture.color * texture.diffusivity * l_dot_n; 
-            color += texture.color * texture.specularity * std::max(0.0, pow(v_dot_r, 5));
+            color += texture.color * texture.specularity * std::max(0.0, pow(v_dot_r, 7));
         }
+
+        Ray reflect_ray = Ray{.direction=n * -2 * ray.direction.dot_product(n) + ray.direction, .origin=pos+n*0.01};
+        float k = (float)(color.r + color.g + color.b) / (255 * 3);
+        color += cast_ray(scene, reflect_ray, depth + 1) * texture.reflectivity * k;
 
         return color;
 
