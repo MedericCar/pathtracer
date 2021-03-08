@@ -18,13 +18,13 @@ namespace isim {
     }
     
     void Image::set_pixel(int i, int j, Rgb c) {
-        pixels[i * w + j] = c;
+        pixels[j * w + i] = c;
     }
 
     void Image::save_to_ppm(std::string filename) {
         std::ofstream ofs(filename, std::ios::binary);
 
-        ofs << "P6\n" << h << " " << w << "\n255\n"; 
+        ofs << "P6\n" << w << " " << h << "\n255\n"; 
 
         for (size_t i = 0; i < length; i++) {
             ofs << pixels[i].r;

@@ -15,6 +15,8 @@ namespace isim {
         Sphere(TextureMaterial *material, Vector3 center, float radius);
         ~Sphere() = default;
 
+        const Vector3& get_pos() const {return center;};
+
         std::optional<Vector3> is_intersect(const Ray& ray) const;
 
         Vector3 get_surface_normal(const Vector3& pos) const;

@@ -46,6 +46,10 @@ namespace isim {
         bool operator!=(const Rgb &c) const {
             return c.r != r || c.g != g || c.b != b;
         } 
+
+        bool operator==(const Rgb &c) const {
+            return c.r == r && c.g == g && c.b == b;
+        } 
         
         Rgb& operator+=(const Rgb &c) {
             r = std::clamp((int)std::round(r + c.r), 0, 255);
