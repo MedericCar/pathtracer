@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
     auto img = isim::Image(img_h, img_w);
     auto pixels = img.get_pixels();
 
-    auto cam_center = isim::Vector3(-1, 0, 1); 
+    auto cam_center = isim::Vector3(0, 0, 1); 
     auto cam_target = isim::Vector3(0, 0, -1); 
     auto camera = isim::Camera(cam_center, cam_target, 90, img_w, img_h);
 
@@ -29,28 +29,27 @@ int main(int argc, char const *argv[])
     scene.add_object(sphere);
 
     auto mat_center = new isim::UniformTexture({isim::Rgb(167, 111, 227), 1, 0, 0.3});
+    auto sphere1 = new isim::Sphere(mat_center, isim::Vector3(0, 0, -1), 0.5);
+    scene.add_object(sphere1);
+
     auto mat_left = new isim::UniformTexture({isim::Rgb(204, 204, 204), 1, 1, 0.7});
-    auto mat_right = new isim::UniformTexture({isim::Rgb(204, 165, 50), 1, 0.7, 0.7});
-    auto mat_up = new isim::UniformTexture({isim::Rgb(171, 233, 255), 1, 1, 0.7});
-    auto sphere2 = new isim::Sphere(mat_center, isim::Vector3(0, 0, -1), 0.5);
-    auto sphere3 = new isim::Sphere(mat_left, isim::Vector3(-1, 0, -1), 0.5);
-    auto sphere4 = new isim::Sphere(mat_right, isim::Vector3(1, 0, -1), 0.5);
-    auto sphere5 = new isim::Sphere(mat_up, isim::Vector3(0, 1.5, -1), 1);
+    auto sphere2 = new isim::Sphere(mat_left, isim::Vector3(-1, 0, -1), 0.5);
     scene.add_object(sphere2);
+
+    auto mat_right = new isim::UniformTexture({isim::Rgb(204, 165, 50), 1, 0.7, 0.7});
+    auto sphere3 = new isim::Sphere(mat_right, isim::Vector3(1, 0, -1), 0.5);
     scene.add_object(sphere3);
+
+    auto mat_up = new isim::UniformTexture({isim::Rgb(171, 233, 255), 1, 1, 0.7});
+    auto sphere4 = new isim::Sphere(mat_up, isim::Vector3(0, 1.5, -1), 1);
     scene.add_object(sphere4);
-    scene.add_object(sphere5);
 
     auto light = new isim::PointLight(isim::Vector3(0, 5, 10));
-    auto light2 = new isim::PointLight(isim::Vector3(3, 1, 5));
-    auto light3 = new isim::PointLight(isim::Vector3(-3, 1, 5));
     scene.add_light(light);
-    //scene.add_light(light2);
-    //scene.add_light(light3);
     
     isim::render(img, scene);
 
-    img.save_to_ppm("oof.ppm");
+    img.save_to_ppm("scene.ppm");
 
     return 0;
 }
