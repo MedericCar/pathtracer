@@ -13,6 +13,10 @@ namespace isim {
         z = v.get_z();
     }
 
+    Vector3::Vector3() {
+        x = 0, y = 0, z = 0;
+    }
+
     Vector3 Vector3::operator*(float l) const {
         return Vector3(x*l, y*l, z*l);
     }

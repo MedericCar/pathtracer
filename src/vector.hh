@@ -12,6 +12,7 @@ namespace isim {
     public:
         Vector3(float x_, float y_, float z_);
         Vector3(const Vector3 &v);
+        Vector3();
         ~Vector3() = default;
 
         float get_x() const { return x; }

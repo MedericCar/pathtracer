@@ -8,7 +8,8 @@ set(SRC_RAYTRACER "vector.cpp"
                   "scene.cpp"
                   "render.cpp"
                   "point_light.cpp"
-                  "color.cpp")
+                  "color.cpp"
+                  "triangle.cpp")
 
 add_library(raytracer ${SRC_RAYTRACER})
 

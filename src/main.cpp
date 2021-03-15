@@ -1,15 +1,16 @@
 #include <iostream>
 #include <optional>
 
-#include "vector.hh"
+#include "camera.hh"
 #include "image.hh"
+#include "point_light.hh"
+#include "render.hh"
 #include "scene.hh"
 #include "sphere.hh"
-#include "camera.hh"
-#include "vector.hh"
+#include "triangle.hh"
 #include "uniform_texture.hh"
-#include "render.hh"
-#include "point_light.hh"
+#include "vector.hh"
+#include "vector.hh"
 
 int main(int argc, char const *argv[])
 {
@@ -43,6 +44,12 @@ int main(int argc, char const *argv[])
     auto mat_up = new isim::UniformTexture({isim::Rgb(171, 233, 255), 1, 1, 0.7});
     auto sphere4 = new isim::Sphere(mat_up, isim::Vector3(0, 1.5, -1), 1);
     scene.add_object(sphere4);
+
+    auto mat_triangle = new isim::UniformTexture({isim::Rgb(255, 0, 0), 1, 1, 0.7});
+    auto triangle = new isim::Triangle(mat_triangle, isim::Vector3(4, 0, -2),
+                                       isim::Vector3(0, 4, -2),
+                                       isim::Vector3(-4, 0, -2));
+    scene.add_object(triangle);
 
     auto light = new isim::PointLight(isim::Vector3(0, 5, 10));
     scene.add_light(light);
