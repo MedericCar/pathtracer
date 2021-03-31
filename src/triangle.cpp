@@ -5,9 +5,11 @@
 
 namespace isim {
 
-    Triangle::Triangle(TextureMaterial* _material, const Vector3 &_pt0, 
-                       const Vector3 &_pt1, const Vector3 &_pt2)
-     : Object(_material), pt0(_pt0), pt1(_pt1), pt2(_pt2){
+    Triangle::Triangle(TextureMaterial* _material, const std::string& _id,
+                       const Vector3 &_pt0, 
+                       const Vector3 &_pt1,
+                       const Vector3 &_pt2)
+     : Object(_material, _id), pt0(_pt0), pt1(_pt1), pt2(_pt2) {
         edge0 = _pt1 - _pt0;
         edge1 = _pt2 - _pt0;
         normal = cross_product(edge0, edge1).normalize();
@@ -50,6 +52,9 @@ namespace isim {
 
 
     TextureConstants Triangle::get_texture_constants(const Vector3& pos) const {
+        //float plane_proj = (pos - pt0).dot_product(normal);
+        //if (plane_proj > -EPSILON || plane_proj < EPSILON)
+        //    std::cout << (pos - pt0).dot_product(normal) << "\n";
         return material->get_constants(pos);
     }
 }

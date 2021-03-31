@@ -16,8 +16,8 @@ namespace isim {
         Vector3 normal;
 
     public:
-        Triangle(TextureMaterial* _material, const Vector3 &_pt0, 
-                 const Vector3 &_pt1, const Vector3 &_pt2);
+        Triangle(TextureMaterial* _material, const std::string& id,
+                 const Vector3 &_pt0, const Vector3 &_pt1, const Vector3 &_pt2);
 
         std::optional<Vector3> is_intersect(const Ray& ray) const;
 

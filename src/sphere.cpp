@@ -5,8 +5,9 @@
 
 namespace isim {
 
-    Sphere::Sphere(TextureMaterial* _material, Vector3 _center, float _radius)
-     : Object(_material), center(_center), radius(_radius) {}
+    Sphere::Sphere(TextureMaterial* _material, const std::string& _id, 
+                   Vector3 _center, float _radius)
+     : Object(_material, _id), center(_center), radius(_radius) {}
     
     std::optional<Vector3> Sphere::is_intersect(const Ray& ray) const {
         Vector3 oc = center - ray.origin;

@@ -12,10 +12,9 @@ namespace isim {
         float radius;
 
     public:
-        Sphere(TextureMaterial *material, Vector3 center, float radius);
+        Sphere(TextureMaterial *material, const std::string& id, Vector3 center,
+               float radius);
         ~Sphere() = default;
-
-        const Vector3& get_pos() const {return center;};
 
         std::optional<Vector3> is_intersect(const Ray& ray) const;
 

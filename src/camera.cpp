@@ -5,6 +5,7 @@
 namespace isim {
 
     Vector3 const up_cam = Vector3(0, 1, 0);
+    Vector3 const up = Vector3(0, 1, 0);
 
     Camera::Camera(Vector3 _center, Vector3 _target, float _fov, int _img_w,
                    int _img_h) 
@@ -48,6 +49,32 @@ namespace isim {
         Ray ray = {
             .direction = (pixel_world - center_world).normalize(),
             .origin = center_world
+        };
+
+        return ray;
+    }
+
+    Ray Camera::get_pixel_ray2(float x, float y) const {
+        Vector3 w = (target - center).normalize();
+        Vector3 u = cross_product(w, up).normalize();
+        Vector3 v = cross_product(u, w);
+        
+        float alpha = fov * M_PI / 180;
+        float pixel_w = 2 * tan(alpha / 2) / img_w; 
+        float pixel_h = 2 * tan(alpha / 2) / img_h; 
+
+        Vector3 start = w - u * (img_w / 2) * pixel_w +
+                            v * (img_h / 2) * pixel_h +
+                            u * (pixel_w / 2) -
+                            v * (pixel_h / 2);
+
+        Vector3 direction = start + u * pixel_w * x - v * pixel_h * y;
+
+        //std::cout << direction;
+
+        Ray ray = {
+            .direction = direction.normalize(),
+            .origin = center
         };
 
         return ray;

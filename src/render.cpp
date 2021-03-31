@@ -25,9 +25,9 @@ namespace isim {
         auto min = std::min_element(
             encountered.begin(),
             encountered.end(),
-            [](auto a, auto b) {
-                return a.second.euclidean_norm() 
-                        < b.second.euclidean_norm();
+            [&ray](auto a, auto b) {
+                return (a.second - ray.origin).euclidean_norm() 
+                       < (b.second - ray.origin).euclidean_norm();
                 } 
         );
 
@@ -40,7 +40,8 @@ namespace isim {
 
         // Set background
         if (!nearest_obj.has_value() && depth <= 1)
-            return Rgb(168, 202, 255);
+            return color;
+            //return Rgb(168, 202, 255);
 
         // Recursion stopping case
         if (!nearest_obj.has_value() || depth == MAX_DEPTH)
@@ -70,15 +71,16 @@ namespace isim {
             Vector3 r = n * 2 * l_dot_n - l;
             float v_dot_r = (ray.direction * -1).dot_product(r);
             color += texture.color * texture.ks
-                     * std::max(0.0, pow(v_dot_r, 7));
+                     * std::max(0.0, pow(v_dot_r, 5));
         }
 
         // Reflection
         Ray reflect_ray = Ray{
             .direction = ray.direction - n * 2 * ray.direction.dot_product(n),
-            .origin = pos + n * 0.01
+            .origin = pos + n * 0.001
         };
         float k = (float)(color.r + color.g + color.b) / (255 * 3);
+        //color += cast_ray(scene, reflect_ray, depth + 1) * texture.kr;
         color += cast_ray(scene, reflect_ray, depth + 1) * texture.kr * k;
 
         return color;
