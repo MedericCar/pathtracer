@@ -19,7 +19,8 @@ namespace isim {
         int img_w, img_h;
 
     public:
-        Camera(Vector3 center, Vector3 target, float fov, int img_w, int img_h);
+        Camera(const Vector3& center, const Vector3& target, float fov, 
+               int img_w, int img_h);
 
         ~Camera() = default;
 

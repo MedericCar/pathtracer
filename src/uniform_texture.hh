@@ -1,19 +1,19 @@
 #pragma once
 
-#include "texture_material.hh"
+#include "material.hh"
 
 namespace isim {
 
-    class UniformTexture : public TextureMaterial {
+    class UniformTexture : public Material {
 
     private:
-        TextureConstants constants;
+        MaterialConstants constants;
 
     public:
-        UniformTexture(TextureConstants c);
+        UniformTexture(MaterialConstants c);
         ~UniformTexture() {};
 
-        TextureConstants get_constants(const Vector3& pos) const final;
+        MaterialConstants get_constants(const Vector3& pos) const final;
     };
     
 }

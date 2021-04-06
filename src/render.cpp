@@ -49,7 +49,7 @@ namespace isim {
 
         const Object* obj = nearest_obj.value().first;
         Vector3 pos = nearest_obj.value().second;
-        TextureConstants texture = obj->get_texture_constants(pos);
+        MaterialConstants texture = obj->get_texture_constants(pos);
 
         Vector3 n = obj->get_surface_normal(pos);
 

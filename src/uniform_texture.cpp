@@ -2,9 +2,9 @@
 
 namespace isim {
 
-    UniformTexture::UniformTexture(TextureConstants _c) : constants(_c) {}
+    UniformTexture::UniformTexture(MaterialConstants _c) : constants(_c) {}
 
-    TextureConstants
+    MaterialConstants
     UniformTexture::get_constants(const Vector3& pos) const {
         return constants;
     }

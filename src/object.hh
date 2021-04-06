@@ -3,7 +3,7 @@
 #include <memory>
 #include <optional>
 
-#include "texture_material.hh"
+#include "material.hh"
 #include "ray.hh"
 
 namespace isim {
@@ -14,17 +14,17 @@ namespace isim {
         const std::string id;
 
     protected :
-        TextureMaterial* material;
+        std::shared_ptr<Material> material;
 
     public:
-        Object(TextureMaterial* _material, const std::string& _id);
+        Object(std::shared_ptr<Material> _material, const std::string& _id);
         virtual ~Object() = default;
 
         virtual std::optional<Vector3> is_intersect(const Ray& ray) const = 0;
 
         virtual Vector3 get_surface_normal(const Vector3& pos) const = 0;
 
-        virtual TextureConstants
+        virtual MaterialConstants
         get_texture_constants(const Vector3& pos) const = 0;
     };
 

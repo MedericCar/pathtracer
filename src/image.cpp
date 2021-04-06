@@ -6,17 +6,9 @@ namespace isim {
 
     Image::Image(int _h, int _w) : h(_h), w(_w) {
         length = h * w;
-        pixels = new Rgb[length];
+        pixels = std::vector(length, Rgb(0));
     }
 
-    Image::~Image() {
-        delete pixels;
-    }
-
-    Rgb* Image::get_pixels() { 
-        return pixels;
-    }
-    
     void Image::set_pixel(int i, int j, Rgb c) {
         pixels[i + j * w] = c;
     }

@@ -7,14 +7,14 @@ namespace isim {
     Vector3 const up_cam = Vector3(0, 1, 0);
     Vector3 const up = Vector3(0, 1, 0);
 
-    Camera::Camera(Vector3 _center, Vector3 _target, float _fov, int _img_w,
-                   int _img_h) 
+    Camera::Camera(const Vector3& _center, const Vector3& _target, float _fov,
+                   int _img_w, int _img_h) 
         : center(_center),
           target(_target),
           fov(_fov),
           img_w(_img_w),
           img_h(_img_h) {            
-                
+
         // FIXME : Look-At method issue when camera vertically oriented.
         Vector3 forward = (center - target).normalize();
         Vector3 right = cross_product(up_cam, forward).normalize();

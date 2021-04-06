@@ -8,7 +8,7 @@ namespace isim {
     Scene::Scene(const Camera& _camera,
                  std::vector<std::unique_ptr<Object>> _objects,
                  std::vector<std::unique_ptr<Light>> _lights)
-      : camera(camera),
+      : camera(_camera),
         objects(std::move(_objects)),
         lights(std::move(_lights))
     {}

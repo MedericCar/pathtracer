@@ -5,22 +5,22 @@
 
 namespace isim {
 
-    struct TextureConstants {
+    struct MaterialConstants {
         Rgb color;
         float kd;  // diffusivity
         float kr;  // reflectivity
         float ks;  // specularity
     };
 
-    class TextureMaterial {
+    class Material {
 
     private:
-        TextureConstants constants;
+        MaterialConstants constants;
     public:
-        TextureMaterial() = default;
-        virtual ~TextureMaterial() = default;
+        Material() = default;
+        virtual ~Material() = default;
 
-        virtual TextureConstants
+        virtual MaterialConstants
         get_constants(const Vector3& pos) const = 0;
     };
     

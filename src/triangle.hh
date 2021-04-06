@@ -16,14 +16,14 @@ namespace isim {
         Vector3 normal;
 
     public:
-        Triangle(TextureMaterial* _material, const std::string& id,
-                 const Vector3 &_pt0, const Vector3 &_pt1, const Vector3 &_pt2);
+        Triangle(std::shared_ptr<Material> _material, const std::string& id,
+                 const Vector3& _pt0, const Vector3& _pt1, const Vector3& _pt2);
 
         std::optional<Vector3> is_intersect(const Ray& ray) const;
 
         Vector3 get_surface_normal(const Vector3& pos) const;
 
-        TextureConstants get_texture_constants(const Vector3& pos) const;
+        MaterialConstants get_texture_constants(const Vector3& pos) const;
 
     };
     

@@ -5,7 +5,7 @@
 
 namespace isim {
 
-    Sphere::Sphere(TextureMaterial* _material, const std::string& _id, 
+    Sphere::Sphere(std::shared_ptr<Material> _material, const std::string& _id, 
                    Vector3 _center, float _radius)
      : Object(_material, _id), center(_center), radius(_radius) {}
     
@@ -43,7 +43,7 @@ namespace isim {
         return (pos - center).normalize();
     }
 
-    TextureConstants Sphere::get_texture_constants(const Vector3& pos) const {
+    MaterialConstants Sphere::get_texture_constants(const Vector3& pos) const {
         return material->get_constants(pos);
     }
 }
