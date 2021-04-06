@@ -24,6 +24,9 @@ namespace isim {
 
         ~Camera() = default;
 
+        int get_width() const;
+        int get_height() const;
+
         Ray get_pixel_ray(float x, float y) const;
         Ray get_pixel_ray2(float x, float y) const;
 

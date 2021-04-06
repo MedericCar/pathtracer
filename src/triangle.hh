@@ -11,8 +11,8 @@ namespace isim {
 
     private:
         Vector3 pt0, pt1, pt2;
-        Vector3 edge0;
         Vector3 edge1;
+        Vector3 edge2;
         Vector3 normal;
 
     public:

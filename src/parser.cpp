@@ -61,18 +61,29 @@ load_objects(json j, std::vector<std::shared_ptr<Material>> materials) {
     std::vector<std::unique_ptr<Object>> objects;
     
     for (auto const& obj : j.at("objects")) {                
+
+        int i = obj.at("material").get<int>();
+        std::shared_ptr<Material> mat = materials[i];
+        std::string label = obj.at("label").get<std::string>();
         
-        if (obj.at("type").get<std::string>() == "sphere") {
+        std::string type = obj.at("type").get<std::string>();
+        if (type == "sphere") {
             auto c = obj.at("center").get<std::vector<float>>();
             Vector3 center(c[0], c[1], c[2]);
-
-            int i = obj.at("material").get<int>();
-            std::shared_ptr<Material> mat = materials[i];
-            std::string label = obj.at("label").get<std::string>();
             float radius = obj.at("radius").get<float>();
 
             objects.emplace_back(std::make_unique<Sphere>(mat, label, center,
                                                           radius));
+        } else if (type == "triangle") {
+            auto p1 = obj.at("p1").get<std::vector<float>>();
+            Vector3 v1(p1[0], p1[1], p1[2]);
+            auto p2 = obj.at("p2").get<std::vector<float>>();
+            Vector3 v2(p2[0], p2[1], p2[2]);
+            auto p3 = obj.at("p3").get<std::vector<float>>();
+            Vector3 v3(p3[0], p3[1], p3[2]);
+
+            objects.emplace_back(std::make_unique<Triangle>(mat, label,
+                                                            v1, v2, v3));
         }
     }
 
@@ -121,7 +132,7 @@ void load_meshes(const std::string& obj_file, const std::string& mtl_dir,
         MaterialConstants c = {
             .color = Rgb(mtl.ambient[0] * 255, mtl.ambient[1] * 255,
                          mtl.ambient[2] * 255),
-            .kd = 1,
+            .kd = 0.7,
             .kr = 1,
             .ks = 1
         };

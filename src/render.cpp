@@ -52,6 +52,8 @@ namespace isim {
         MaterialConstants texture = obj->get_texture_constants(pos);
 
         Vector3 n = obj->get_surface_normal(pos);
+        //std::cout << "n " << n;
+        //std::cout << "pos " << pos;
 
         for (auto const& p : scene.get_lights()) {
             Ray light_ray = p->get_ray(pos);
@@ -77,8 +79,14 @@ namespace isim {
         // Reflection
         Ray reflect_ray = Ray{
             .direction = ray.direction - n * 2 * ray.direction.dot_product(n),
+            //.origin = pos + n * 0.001
             .origin = pos + n * 0.001
         };
+        //std::cout << obj->id << "\n";
+        //std::cout << "pos : " << pos;
+        //std::cout << "in ray : " << ray.direction;
+        //std::cout << "reflect : " << reflect_ray.direction;
+        //std::cout << "n : " << n;
         float k = (float)(color.r + color.g + color.b) / (255 * 3);
         //color += cast_ray(scene, reflect_ray, depth + 1) * texture.kr;
         color += cast_ray(scene, reflect_ray, depth + 1) * texture.kr * k;
@@ -88,8 +96,10 @@ namespace isim {
     }
 
     void render(Image &img, const Scene &scene) {
+        std::cout << img.h * img.w << "\n";
         for (size_t j = 0; j < img.h; j++) {
             for (size_t i = 0; i < img.w; i++) {
+                //std::cout << "I : " << i << " J : " << j << "\n";
                 Ray view_ray = scene.get_camera().get_pixel_ray(i, j);
                 Rgb color = cast_ray(scene, view_ray, 0);
                 img.set_pixel(i, j, color);

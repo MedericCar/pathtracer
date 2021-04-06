@@ -34,6 +34,14 @@ namespace isim {
         camera2world.m[3][2] = center.get_z(); 
     }
 
+    int Camera::get_width() const {
+        return img_w;
+    }
+
+    int Camera::get_height() const {
+        return img_h;
+    }
+
     Ray Camera::get_pixel_ray(float x, float y) const {
         float img_ratio = (float) img_w / (float) img_h;
         float alpha = fov * M_PI / 180;
@@ -69,8 +77,6 @@ namespace isim {
                             v * (pixel_h / 2);
 
         Vector3 direction = start + u * pixel_w * x - v * pixel_h * y;
-
-        //std::cout << direction;
 
         Ray ray = {
             .direction = direction.normalize(),

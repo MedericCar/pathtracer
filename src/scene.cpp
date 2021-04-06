@@ -33,5 +33,9 @@ namespace isim {
         lights.push_back(std::move(light));
     }
 
+    void Scene::summary() {
+        std::cout << "N objects : " << objects.size() << "\n";
+    }
+
 }
 

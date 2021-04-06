@@ -28,6 +28,8 @@ namespace isim {
         void add_object(std::unique_ptr<Object> obj);
         void add_light(std::unique_ptr<Light> light);
 
+        void summary();
+
     };
 
 }

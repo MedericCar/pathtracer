@@ -3,8 +3,8 @@
         "center": [0, 1, 2],
         "target": [0, 1, 0],
         "fov": 90,
-        "width": 480,
-        "height": 360
+        "width": 1000,
+        "height": 1000
     },
 
     "lights" : [

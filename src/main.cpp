@@ -4,11 +4,13 @@
 
 int main(int argc, char const *argv[])
 {
-    int img_h = 360;
-    int img_w = 480;
-    auto img = isim::Image(img_h, img_w);
+    std::string f = "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/cornell.json";
+    isim::Scene* scene = isim::load_scene(f);
+    scene->summary();
 
-    isim::Scene* scene = isim::load_scene("/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/cornell.json");
+    int img_h = scene->get_camera().get_height();
+    int img_w = scene->get_camera().get_width();
+    auto img = isim::Image(img_h, img_w);
     
     isim::render(img, *scene);
 

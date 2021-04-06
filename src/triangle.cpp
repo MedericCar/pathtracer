@@ -11,34 +11,39 @@ namespace isim {
                        const Vector3& _pt1,
                        const Vector3& _pt2)
      : Object(_material, _id), pt0(_pt0), pt1(_pt1), pt2(_pt2) {
-        edge0 = _pt1 - _pt0;
-        edge1 = _pt2 - _pt0;
-        normal = cross_product(edge0, edge1).normalize();
+        edge1 = _pt1 - _pt0;
+        edge2 = _pt2 - _pt0;
+        normal = cross_product(edge1, edge2).normalize();
     }
     
     // Möller-Trumbore algorithm : 
-    //   - express problem in barycentric coordinate
+    //   - express problem in barycentric coordinate P = wA + uB + vC
+    //   - also : P = O + tD
     //   - reorganise equation of intersection (unknowns should be t, u, v)
     //   - solve system using Cramer's rule
     std::optional<Vector3> Triangle::is_intersect(const Ray& ray) const {
-        Vector3 P = cross_product(ray.direction, edge1);
-        float det = P.dot_product(edge0);
+        Vector3 h = cross_product(ray.direction, edge2);
+        float a = edge1.dot_product(h);
 
-        if (det > - EPSILON && det < EPSILON)
-            return std::nullopt;
+        if (a > - EPSILON && a < EPSILON)
+            return std::nullopt;  // parallel ray and triangle
 
-        Vector3 T = ray.origin - pt0;
-        float u = T.dot_product(P) * (1 / det);
+        float f = 1.0 / a;
+
+        Vector3 s = ray.origin - pt0;
+        float u = s.dot_product(h) * f;
         if (u < 0 || u > 1)
             return std::nullopt;
 
-        Vector3 Q = cross_product(T, edge0);
-        float v = Q.dot_product(ray.direction) * (1 / det);
+        Vector3 q = cross_product(s, edge1);
+        float v = ray.direction.dot_product(q) * f;
         if (v < 0 || u + v > 1)
-            return std::nullopt;
+            return std::nullopt;  // no intersection 
 
-        float t = edge1.dot_product(Q) * (1 / det);
-        
+        float t = edge2.dot_product(q) * f;
+        if (t < EPSILON)
+            return std::nullopt;  // intersection is behind camera
+
         return std::make_optional<Vector3>(ray.origin + ray.direction * t); 
     }
 
