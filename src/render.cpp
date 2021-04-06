@@ -6,16 +6,16 @@
 #include "sphere.hh"
 namespace isim {
 
-    std::optional<std::pair<const Object*, Vector3>> 
-    find_nearest_intersection(const std::vector<Object*> objects,
+    std::optional<std::pair<Object const*, Vector3>> 
+    find_nearest_intersection(const std::vector<std::unique_ptr<Object>>& objects,
                               const Ray &ray) {
 
-        std::vector<std::pair<const Object*, Vector3>> encountered;
-        for (auto p : objects) {
+        std::vector<std::pair<Object const*, Vector3>> encountered;
+        for (auto const& p : objects) {
             std::optional<Vector3> intersection = p->is_intersect(ray);
             if (intersection) {
                 Vector3 pos = intersection.value();
-                encountered.push_back(std::make_pair(p, pos));
+                encountered.push_back(std::make_pair(p.get(), pos));
             }
         }
 
@@ -53,7 +53,7 @@ namespace isim {
 
         Vector3 n = obj->get_surface_normal(pos);
 
-        for (auto p : scene.get_lights()) {
+        for (auto const& p : scene.get_lights()) {
             Ray light_ray = p->get_ray(pos);
 
             // Shadows

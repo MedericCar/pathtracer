@@ -28,36 +28,38 @@ int main(int argc, char const *argv[])
     auto scene = isim::Scene(camera);
 
     auto mat_ground = new isim::UniformTexture({isim::Rgb(100, 232, 104), 1, 0, 0});
-    auto sphere = new isim::Sphere(mat_ground, "g", isim::Vector3(0, -100.5, 0), 100);
+    std::unique_ptr<isim::Object> sphere = std::make_unique<isim::Sphere>(mat_ground, "g", isim::Vector3(0, -100.5, 0), 100);
     //scene.add_object(sphere);
 
     auto mat_center = new isim::UniformTexture({isim::Rgb(167, 111, 227), 1, 0, 0.3});
-    auto sphere1 = new isim::Sphere(mat_center, "s1", isim::Vector3(-1, 0, -3), 0.5);
-    scene.add_object(sphere1);
+    auto sphere1 = std::make_unique<isim::Sphere>(mat_center, "s1", isim::Vector3(-1, 0, -3), 0.5);
+    scene.add_object(std::move(sphere1));
 
     auto mat_left = new isim::UniformTexture({isim::Rgb(204, 204, 204), 1, 1, 0.7});
-    auto sphere2 = new isim::Sphere(mat_left, "s2", isim::Vector3(0, 0, 2), 1);
-    scene.add_object(sphere2);
+    auto sphere2 = std::make_unique<isim::Sphere>(mat_left, "s2", isim::Vector3(0, 0, 2), 1);
+    scene.add_object(std::move(sphere2));
 
     auto mat_right = new isim::UniformTexture({isim::Rgb(204, 165, 50), 1, 0.7, 0.7});
-    auto sphere3 = new isim::Sphere(mat_right, "s3", isim::Vector3(1, 0, 0), 0.5);
-    scene.add_object(sphere3);
+    auto sphere3 = std::make_unique<isim::Sphere>(mat_right, "s3", isim::Vector3(1, 0, 0), 0.5);
+    scene.add_object(std::move(sphere3));
 
     auto mat_up = new isim::UniformTexture({isim::Rgb(171, 233, 255), 1, 1, 0.7});
-    auto sphere4 = new isim::Sphere(mat_up, "s4", isim::Vector3(0, 1.5, -1), 1);
+    auto sphere4 = std::make_unique<isim::Sphere>(mat_up, "s4", isim::Vector3(0, 1.5, -1), 1);
     //scene.add_object(sphere4);
 
     auto mat_triangle = new isim::UniformTexture({isim::Rgb(255, 0, 0), 1, 1, 0.7});
-    auto triangle = new isim::Triangle(mat_triangle, "t", isim::Vector3(-2, 0, 4),
-                                       isim::Vector3(-2, 4, 0),
-                                       isim::Vector3(-2, 0, -4));
-    scene.add_object(triangle);
+    auto triangle = std::make_unique<isim::Triangle>(mat_triangle,
+                                                     "t",
+                                                     isim::Vector3(-2, 0, 4),
+                                                     isim::Vector3(-2, 4, 0),
+                                                     isim::Vector3(-2, 0, -4));
+    scene.add_object(std::move(triangle));
 
-    auto light = new isim::PointLight(isim::Vector3(0, 5, 10));
-    scene.add_light(light);
+    auto light = std::make_unique<isim::PointLight>(isim::Vector3(0, 5, 10));
+    scene.add_light(std::move(light));
 
-    auto light2 = new isim::PointLight(isim::Vector3(0, 3, -1));
-    scene.add_light(light2);
+    auto light2 = std::make_unique<isim::PointLight>(isim::Vector3(0, 3, -1));
+    scene.add_light(std::move(light2));
     
     isim::render(img, scene);
 

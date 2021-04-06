@@ -23,12 +23,8 @@ namespace isim {
         Vector3 P = cross_product(ray.direction, edge1);
         float det = P.dot_product(edge0);
 
-        //std::cout << P;
-        //std::cout << edge1;
-        //std::cout << det << "\n";
         if (det > - EPSILON && det < EPSILON)
             return std::nullopt;
-
 
         Vector3 T = ray.origin - pt0;
         float u = T.dot_product(P) * (1 / det);
@@ -41,7 +37,6 @@ namespace isim {
             return std::nullopt;
 
         float t = edge1.dot_product(Q) * (1 / det);
-
         
         return std::make_optional<Vector3>(ray.origin + ray.direction * t); 
     }
