@@ -95,17 +95,17 @@ std::vector<std::unique_ptr<Light>> load_lights(json j) {
     return lights;
 }
 
-void load_OBJ(json j, std::vector<std::unique_ptr<Object>>& objects) {
+void load_meshes(const std::string& obj_file, const std::string& mtl_dir,
+                 std::vector<std::unique_ptr<Object>>& objects) {
 
-    std::string inputfile = "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/cornell.obj";
-    std::string mlt_dir = "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/";
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
+    std::vector<tinyobj::material_t> mtls;
 
     std::string err;
 
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, inputfile.c_str(), mlt_dir.c_str());
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &mtls, &err,
+                                obj_file.c_str(), mtl_dir.c_str());
 
     if (!err.empty()) {
         std::cerr << err << std::endl;
@@ -115,8 +115,25 @@ void load_OBJ(json j, std::vector<std::unique_ptr<Object>>& objects) {
         exit(1);
     }
 
+    std::vector<std::shared_ptr<Material>> materials;
+    for (auto const& mtl : mtls) {
+        // FIXME : follow MTL format
+        MaterialConstants c = {
+            .color = Rgb(mtl.ambient[0] * 255, mtl.ambient[1] * 255,
+                         mtl.ambient[2] * 255),
+            .kd = 1,
+            .kr = 1,
+            .ks = 1
+        };
+        materials.emplace_back(std::make_shared<UniformTexture>(c));
+    }
+
     // Traverse shapes
     for (size_t s = 0; s < shapes.size(); s++) {
+
+        // Find mesh material
+        int mat_id = shapes[s].mesh.material_ids[0];
+        std::shared_ptr<Material> mat = materials[mat_id];
 
         // Traverse all faces in shape
         size_t index_offset = 0;
@@ -134,14 +151,9 @@ void load_OBJ(json j, std::vector<std::unique_ptr<Object>>& objects) {
             }
 
             if (fv == 3) {
-                // FIXME NOOOOOOOOOOOOOOOOOOOOOoo
-                MaterialConstants c = { .color = Rgb(255, 0, 0), .kd = 1, .kr = 1, .ks = 0.7 };
-                std::shared_ptr<Material> mat_triangle = std::make_shared<UniformTexture>(c);
-                auto triangle = std::make_unique<Triangle>(mat_triangle,
-                                                           "t",
-                                                           vec[0],
-                                                           vec[1],
-                                                           vec[2]);
+                auto triangle = 
+                    std::make_unique<Triangle>(mat, "triangle",
+                                               vec[0], vec[1], vec[2]);
                 objects.push_back(std::move(triangle));
             } else {
                 std::cerr << "Houston we got a mesh problem.\n";
@@ -163,9 +175,12 @@ Scene* load_scene(const std::string& filename) {
     std::vector<std::unique_ptr<Object>> objects = load_objects(j, materials); 
     std::vector<std::unique_ptr<Light>> lights = load_lights(j); 
 
-    // Load OBJ alongside their MTL
-    //load_MTL(j, materials);
-    load_OBJ(j, objects);
+    // Load meshes and their materials from OBJ & MTL
+    auto obj_files = j.at("objFiles").get<std::vector<std::string>>();
+    auto mtl_dir = j.at("mtlDir").get<std::string>();
+    for (auto const& f : obj_files) {
+        load_meshes(f, mtl_dir, objects);
+    }
 
     return new Scene(cam, std::move(objects), std::move(lights));
 }

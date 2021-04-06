@@ -26,12 +26,19 @@
     ],
 
     "objects" : [
+        {
+            "type": "sphere",
+            "label": "sphere1",
+            "center": [0.5, 1.25, -0.75],
+            "radius": 0.25,
+            "material": 0
+        }
     ],
 
-    "OBJ" : [
+    "objFiles" : [
         "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/cornell.obj"
     ],
 
-    "MTL" : []
+    "mtlDir" : "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/"
     
 }
