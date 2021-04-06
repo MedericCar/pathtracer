@@ -1,0 +1,37 @@
+{
+    "camera" : {
+        "center": [0, 1, 2],
+        "target": [0, 1, 0],
+        "fov": 90,
+        "width": 480,
+        "height": 360
+    },
+
+    "lights" : [
+        {
+            "type": "point",
+            "pos": [-0.5, 1.5, 1]
+        }
+
+    ],
+
+    "materials" : [
+        {
+            "type" : "uniform",
+            "color" : [1, 0, 0],
+            "kd" : 1,
+            "kr" : 1,
+            "ks" : 1
+        }
+    ],
+
+    "objects" : [
+    ],
+
+    "OBJ" : [
+        "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/cornell.obj"
+    ],
+
+    "MTL" : []
+    
+}

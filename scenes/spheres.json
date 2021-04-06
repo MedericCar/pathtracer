@@ -1,0 +1,48 @@
+{
+    "camera" : {
+        "center": [0, 2, 2],
+        "target": [0, 0, 0],
+        "fov": 90,
+        "width": 1920,
+        "height": 1080
+    },
+
+    "lights" : [
+        {
+            "type": "point",
+            "pos": [0, 2, 1]
+        }
+    ],
+
+    "materials" : [
+        {
+            "type" : "uniform",
+            "color" : [1, 0, 0],
+            "kd" : 1,
+            "kr" : 1,
+            "ks" : 1
+        }
+    ],
+
+    "objects" : [
+        {
+            "type": "sphere",
+            "label": "sphere1",
+            "center": [-1, 0, 0],
+            "radius": 1,
+            "material": 0
+        },
+        {
+            "type": "sphere",
+            "label": "sphere2",
+            "center": [1, 0, 0],
+            "radius": 1,
+            "material": 0
+        }
+    ],
+
+    "OBJ" : [],
+
+    "MTL" : []
+    
+}
