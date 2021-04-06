@@ -1,0 +1,6 @@
+[requires]
+nlohmann_json/3.9.1
+tinyobjloader/1.0.6
+
+[generators]
+cmake
