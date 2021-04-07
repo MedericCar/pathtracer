@@ -21,9 +21,6 @@ namespace isim {
         std::optional<Vector3> is_intersect(const Ray& ray) const;
 
         Vector3 get_surface_normal(const Vector3& pos) const;
-
-        MaterialConstants get_material(const Vector3& pos) const;
-
     };
     
 }

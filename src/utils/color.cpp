@@ -4,54 +4,77 @@
 
 namespace isim {
     
-        Rgb::Rgb() : r(0), g(0), b(0) {} 
-        
-        Rgb::Rgb(const Rgb &rgb) : r(rgb.r), g(rgb.g), b(rgb.b) {} 
+Rgb::Rgb() : r(0), g(0), b(0) {} 
 
-        Rgb::Rgb(uint8_t c) : r(c), g(c), b(c) {} 
-        
-        Rgb::Rgb(uint8_t _r, uint8_t _g, uint8_t _b) : r(_r), g(_g), b(_b) {} 
-        
-        bool Rgb::operator!=(const Rgb &c) const {
-            return c.r != r || c.g != g || c.b != b;
-        } 
+Rgb::Rgb(const Rgb &rgb) : r(rgb.r), g(rgb.g), b(rgb.b) {} 
 
-        bool Rgb::operator==(const Rgb &c) const {
-            return c.r == r && c.g == g && c.b == b;
-        } 
-        
-        Rgb Rgb::operator+(const Rgb &c) {
-            uint8_t new_r = std::clamp((int) std::round(r + c.r), 0, 255);
-            uint8_t new_g = std::clamp((int) std::round(g + c.g), 0, 255);
-            uint8_t new_b = std::clamp((int) std::round(b + c.b), 0, 255);
-            return Rgb(new_r, new_g, new_b);
-        } 
+Rgb::Rgb(float c) : r(c), g(c), b(c) {} 
 
-        Rgb& Rgb::operator+=(const Rgb &c) {
-            r = std::clamp((int) std::round(r + c.r), 0, 255);
-            g = std::clamp((int) std::round(g + c.g), 0, 255);
-            b = std::clamp((int) std::round(b + c.b), 0, 255);
-            return *this;
-        } 
+Rgb::Rgb(float _r, float _g, float _b) : r(_r), g(_g), b(_b) {} 
 
-        Rgb Rgb::operator*(float k) const {
-            uint8_t new_r = std::clamp((int)std::round(r * k), 0, 255);
-            uint8_t new_g = std::clamp((int)std::round(g * k), 0, 255);
-            uint8_t new_b = std::clamp((int)std::round(b * k), 0, 255);
-            return Rgb(new_r, new_g, new_b);
-        } 
-        
-        Rgb& Rgb::operator*=(float k) {
-            r = std::clamp((int)std::round(r * k), 0, 255);
-            g = std::clamp((int)std::round(g * k), 0, 255);
-            b = std::clamp((int)std::round(b * k), 0, 255);
-            return *this;
-        } 
+Rgb::Rgb(const std::array<float, 3>& arr)
+    : r(arr[0]), g(arr[1]), b(arr[2])
+{} 
 
-    std::ostream& operator<<(std::ostream &out, Rgb &c) {
-       out << +c.r << " " << +c.g << " " << +c.b << std::endl;
-       return out;
-    }
+bool Rgb::operator!=(const Rgb &c) const {
+    return c.r != r || c.g != g || c.b != b;
+} 
+
+bool Rgb::operator==(const Rgb &c) const {
+    return c.r == r && c.g == g && c.b == b;
+} 
+
+float clamp(float d, float min, float max) {
+    const float t = d < min ? min : d;
+    return t > max ? max : t;
+}
+
+Rgb Rgb::operator+(const Rgb &c) const {
+    float new_r = clamp(r + c.r, 0, 1);
+    float new_g = clamp(g + c.g, 0, 1);
+    float new_b = clamp(b + c.b, 0, 1);
+    return Rgb(new_r, new_g, new_b);
+} 
+
+Rgb& Rgb::operator+=(const Rgb &c) {
+    r = clamp((r + c.r), 0, 1);
+    g = clamp((g + c.g), 0, 1);
+    b = clamp((b + c.b), 0, 1);
+    return *this;
+} 
+
+Rgb Rgb::operator*(float k) const {
+    float new_r = clamp(r * k, 0, 1);
+    float new_g = clamp(g * k, 0, 1);
+    float new_b = clamp(b * k, 0, 1);
+    return Rgb(new_r, new_g, new_b);
+} 
+
+Rgb& Rgb::operator*=(float k) {
+    r = clamp(r * k, 0, 1);
+    g = clamp(g * k, 0, 1);
+    b = clamp(b * k, 0, 1);
+    return *this;
+} 
+
+Rgb Rgb::operator*(const Rgb& other) const {
+    float new_r = clamp(r * other.r, 0, 1);
+    float new_g = clamp(g * other.g, 0, 1);
+    float new_b = clamp(b * other.b, 0, 1);
+    return Rgb(new_r, new_g, new_b);
+} 
+
+Rgb& Rgb::operator*=(const Rgb& other) {
+    r = clamp(r * other.r, 0, 1);
+    g = clamp(g * other.g, 0, 1);
+    b = clamp(b * other.b, 0, 1);
+    return *this;
+} 
+
+std::ostream& operator<<(std::ostream &out, Rgb &c) {
+out << +c.r << " " << +c.g << " " << +c.b << std::endl;
+return out;
+}
     
 
 }

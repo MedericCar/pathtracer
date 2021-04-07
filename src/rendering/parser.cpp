@@ -39,15 +39,15 @@ std::vector<std::shared_ptr<Material>> load_materials(json j) {
     
     for (auto const& mat : j.at("materials")) {                
 
-        auto c = mat.at("color").get<std::vector<float>>();
-        Rgb color(255 * c[0], 255 * c[1], 255 * c[2]);
+        auto ka = mat.at("ka").get<std::array<float, 3>>();
+        auto kd = mat.at("kd").get<std::array<float, 3>>();
+        auto ks = mat.at("ks").get<std::array<float, 3>>();
+        auto ke = mat.at("ke").get<std::array<float, 3>>();
 
-        float kd = mat.at("kd").get<float>();
-        float kr = mat.at("kr").get<float>();
-        float ks = mat.at("ks").get<float>();
+        float ns = mat.at("ns").get<float>();
         
         if (mat.at("type").get<std::string>() == "uniform") {
-            MaterialConstants c = { color, kd, kr, ks };
+            MaterialConstants c = { Rgb(ka), Rgb(kd), Rgb(ks), ns, Rgb(ke), 0 };
             materials.emplace_back(std::make_shared<UniformTexture>(c));
         }
     }
@@ -130,11 +130,12 @@ void load_meshes(const std::string& obj_file, const std::string& mtl_dir,
     for (auto const& mtl : mtls) {
         // FIXME : follow MTL format
         MaterialConstants c = {
-            .color = Rgb(mtl.ambient[0] * 255, mtl.ambient[1] * 255,
-                         mtl.ambient[2] * 255),
-            .kd = 0.7,
-            .kr = 1,
-            .ks = 1
+            .ka = Rgb(mtl.ambient[0], mtl.ambient[1], mtl.ambient[2]),
+            .kd = Rgb(mtl.diffuse[0], mtl.diffuse[1], mtl.diffuse[2]),
+            .ks = Rgb(mtl.specular[0], mtl.specular[1], mtl.specular[2]),
+            .ns = mtl.shininess,
+            .ke = Rgb(mtl.emission[0], mtl.emission[1], mtl.emission[2]),
+            .illumination = mtl.illum
         };
         materials.emplace_back(std::make_shared<UniformTexture>(c));
     }

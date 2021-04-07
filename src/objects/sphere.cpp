@@ -43,7 +43,4 @@ namespace isim {
         return (pos - center).normalize();
     }
 
-    MaterialConstants Sphere::get_material(const Vector3& pos) const {
-        return material->get_constants(pos);
-    }
 }

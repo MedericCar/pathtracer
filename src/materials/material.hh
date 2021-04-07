@@ -6,10 +6,12 @@
 namespace isim {
 
     struct MaterialConstants {
-        Rgb color;
-        float kd;  // diffusivity
-        float kr;  // reflectivity
-        float ks;  // specularity
+        Rgb ka;  // ambient
+        Rgb kd;  // diffusivity
+        Rgb ks;  // specularity
+        float ns;  // specular exponent
+        Rgb ke;  // emissive
+        float illumination;
     };
 
     class Material {

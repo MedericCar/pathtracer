@@ -10,7 +10,7 @@ namespace isim {
         
         private:
             int length;
-            std::vector<Rgb> pixels;
+            std::vector<uint8_t> pixels;
 
         public:
             int h, w;
