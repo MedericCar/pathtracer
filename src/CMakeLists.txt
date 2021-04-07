@@ -1,4 +1,6 @@
-set(SRC_RAYTRACER "materials/uniform_texture.cpp"
+set(SRC_RAYTRACER "bsdf/bsdf.cpp"
+                  "bsdf/diffuse.cpp"
+                  "materials/uniform_texture.cpp"
                   "objects/object.cpp"
                   "objects/point_light.cpp"
                   "objects/sphere.cpp"
@@ -10,11 +12,13 @@ set(SRC_RAYTRACER "materials/uniform_texture.cpp"
                   "rendering/scene.cpp"
                   "utils/color.cpp"
                   "utils/matrix.cpp"
+                  "utils/random.cpp"
                   "utils/vector.cpp")
 
 add_library(raytracer ${SRC_RAYTRACER})
 
-target_include_directories(raytracer PUBLIC "materials"
+target_include_directories(raytracer PUBLIC "bsdf"
+                                            "materials"
                                             "objects"
                                             "rendering"
                                             "utils")

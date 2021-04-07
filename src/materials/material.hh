@@ -1,7 +1,10 @@
 #pragma once
 
+#include <memory>
+
 #include "../utils/color.hh"
 #include "../utils/vector.hh"
+#include "../bsdf/bsdf.hh"
 
 namespace isim {
 
@@ -12,6 +15,7 @@ namespace isim {
         float ns;  // specular exponent
         Rgb ke;  // emissive
         float illumination;
+        std::shared_ptr<Bsdf> bsdf; 
     };
 
     class Material {

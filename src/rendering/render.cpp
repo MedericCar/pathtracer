@@ -39,8 +39,8 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
 
     // Set background
     if (!nearest_obj.has_value() && depth <= 1)
-        return color;
-        //return Rgb(168, 202, 255);
+        return Rgb(0.66, 0.79, 1);
+        //return color;
 
     // Recursion stopping case
     if (!nearest_obj.has_value() || depth == MAX_DEPTH)
@@ -87,33 +87,66 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
     return color;
 }
 
-Rgb Lo(const Scene &scene, const Ray& ray) {
-    Rgb color = Rgb(10); 
+Rgb path_trace(const Scene &scene, const Ray& ray, int depth) {
+    Rgb color = Rgb(0.0f); 
     auto nearest_obj = find_nearest_intersection(scene.get_objects(), ray);
 
-    // Set background
-    if (!nearest_obj.has_value())
+    // Recursion stopping case
+    if (!nearest_obj.has_value() || depth == MAX_DEPTH)
         return color;
-        //return Rgb(168, 202, 255);
 
     const Object* obj = nearest_obj.value().first;
     Vector3 pos = nearest_obj.value().second;
     MaterialConstants material = obj->get_material(pos).get_constants(pos);
+    Vector3 n = obj->get_surface_normal(pos);
 
-    // Add emissive light
-    //Rgb Le = material.
+    // Add direct light
+    Rgb direct = material.ka * material.ke;
+
+    // Add inddirect light by sampling
+    Rgb indirect = material.kd;
+    int n_samples = 16;  // FIXME
+    float inv_samples = (float) 1.0f / n_samples;
+
+
+    float inv_pdf = (float) 1.0f / material.bsdf->get_pdf();
+    
+    for (int i = 0; i < n_samples; i++) {
+        Sample s = material.bsdf->sample(ray.direction, n);
+        Ray sample_ray = { .direction = s.dir, .origin = pos }; 
+        // FIXME indirect += path_trace(scene, sample_ray, depth + 1) * cos(s.cos_theta);
+        indirect += path_trace(scene, sample_ray, depth + 1) * cos(s.cos_theta) * inv_pdf * inv_samples;
+        //std::cout << indirect;
+    }
+
+    //std::cout << indirect;
+
+    color = direct + indirect;
+    //color = direct + indirect * (1 / (n_samples * material.bsdf->get_pdf())); 
+
 
     return color;
 }
 
 void render(Image &img, const Scene &scene) {
+    int n = img.h * img.w;
+    float k = 0;
     for (size_t j = 0; j < img.h; j++) {
         for (size_t i = 0; i < img.w; i++) {
+            if (j * img.w + i > (k / 100) * n) {
+                std::cout << j * img.w + i << " / " << n << " - ";
+                std::cout << k + 1 << " %\n";
+                k++;
+            }
+            //std::cout << i << " " << j << "\n";
             Ray view_ray = scene.get_camera().get_pixel_ray(i, j);
-            Rgb color = cast_ray(scene, view_ray, 0);
+            //Rgb color = cast_ray(scene, view_ray, 0);
+            Rgb color = path_trace(scene, view_ray, 0);
+            //std::cout << "color : " << color << "\n";
             img.set_pixel(i, j, color);
         }
     }
+    std::cout << "Im out" << "\n";
 }
 
 }

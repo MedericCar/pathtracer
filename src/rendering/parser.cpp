@@ -10,6 +10,7 @@
 #include "../objects/sphere.hh"
 #include "../objects/triangle.hh"
 #include "../materials/uniform_texture.hh"
+#include "../bsdf/diffuse.hh"
 
 
 using json = nlohmann::json;
@@ -47,7 +48,15 @@ std::vector<std::shared_ptr<Material>> load_materials(json j) {
         float ns = mat.at("ns").get<float>();
         
         if (mat.at("type").get<std::string>() == "uniform") {
-            MaterialConstants c = { Rgb(ka), Rgb(kd), Rgb(ks), ns, Rgb(ke), 0 };
+            MaterialConstants c = { 
+                Rgb(ka),
+                Rgb(kd), 
+                Rgb(ks),
+                ns,
+                Rgb(ke),
+                0,
+                std::make_shared<DiffuseBsdf>(DiffuseBsdf())
+            };
             materials.emplace_back(std::make_shared<UniformTexture>(c));
         }
     }
@@ -135,7 +144,8 @@ void load_meshes(const std::string& obj_file, const std::string& mtl_dir,
             .ks = Rgb(mtl.specular[0], mtl.specular[1], mtl.specular[2]),
             .ns = mtl.shininess,
             .ke = Rgb(mtl.emission[0], mtl.emission[1], mtl.emission[2]),
-            .illumination = mtl.illum
+            .illumination = (float) mtl.illum,
+            .bsdf = std::make_shared<DiffuseBsdf>(DiffuseBsdf())
         };
         materials.emplace_back(std::make_shared<UniformTexture>(c));
     }
