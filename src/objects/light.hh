@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../rendering/ray.hh"
+#include "../utils/vector.hh"
+
 namespace isim { 
 
     class Light {

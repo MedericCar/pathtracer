@@ -6,10 +6,10 @@
 #include "tiny_obj_loader.h"
 
 #include "parser.hh"
-#include "point_light.hh"
-#include "sphere.hh"
-#include "triangle.hh"
-#include "uniform_texture.hh"
+#include "../objects/point_light.hh"
+#include "../objects/sphere.hh"
+#include "../objects/triangle.hh"
+#include "../materials/uniform_texture.hh"
 
 
 using json = nlohmann::json;

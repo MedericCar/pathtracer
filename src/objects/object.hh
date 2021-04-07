@@ -3,8 +3,8 @@
 #include <memory>
 #include <optional>
 
-#include "material.hh"
-#include "ray.hh"
+#include "../materials/material.hh"
+#include "../rendering/ray.hh"
 
 namespace isim {
 
@@ -25,7 +25,7 @@ namespace isim {
         virtual Vector3 get_surface_normal(const Vector3& pos) const = 0;
 
         virtual MaterialConstants
-        get_texture_constants(const Vector3& pos) const = 0;
+        get_material(const Vector3& pos) const = 0;
     };
 
 }

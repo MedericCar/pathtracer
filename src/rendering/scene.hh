@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "object.hh"
-#include "light.hh"
+#include "../objects/object.hh"
+#include "../objects/light.hh"
 #include "camera.hh"
 
 namespace isim {

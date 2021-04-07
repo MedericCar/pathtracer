@@ -1,20 +1,23 @@
-set(SRC_RAYTRACER "vector.cpp"
-                  "image.cpp"
-                  "uniform_texture.cpp"
-                  "object.cpp"
-                  "sphere.cpp"
-                  "camera.cpp"
-                  "matrix.cpp"
-                  "scene.cpp"
-                  "render.cpp"
-                  "point_light.cpp"
-                  "color.cpp"
-                  "triangle.cpp"
-                  "parser.cpp")
+set(SRC_RAYTRACER "materials/uniform_texture.cpp"
+                  "objects/object.cpp"
+                  "objects/point_light.cpp"
+                  "objects/sphere.cpp"
+                  "objects/triangle.cpp"
+                  "rendering/camera.cpp"
+                  "rendering/image.cpp"
+                  "rendering/parser.cpp"
+                  "rendering/render.cpp"
+                  "rendering/scene.cpp"
+                  "utils/color.cpp"
+                  "utils/matrix.cpp"
+                  "utils/vector.cpp")
 
 add_library(raytracer ${SRC_RAYTRACER})
 
-target_include_directories(raytracer PUBLIC .)
+target_include_directories(raytracer PUBLIC "materials"
+                                            "objects"
+                                            "rendering"
+                                            "utils")
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "vector.hh"
-#include "matrix.hh"
+#include "../utils/vector.hh"
+#include "../utils/matrix.hh"
 #include "ray.hh"
 
 namespace isim {

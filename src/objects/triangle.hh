@@ -1,7 +1,6 @@
 #pragma once 
 
 #include "object.hh"
-#include "vector.hh"
 
 #define EPSILON 1e-8
 
@@ -23,7 +22,7 @@ namespace isim {
 
         Vector3 get_surface_normal(const Vector3& pos) const;
 
-        MaterialConstants get_texture_constants(const Vector3& pos) const;
+        MaterialConstants get_material(const Vector3& pos) const;
 
     };
     

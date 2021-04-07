@@ -52,7 +52,7 @@ namespace isim {
     }
 
 
-    MaterialConstants Triangle::get_texture_constants(const Vector3& pos) const {
+    MaterialConstants Triangle::get_material(const Vector3& pos) const {
         //float plane_proj = (pos - pt0).dot_product(normal);
         //if (plane_proj > -EPSILON || plane_proj < EPSILON)
         //    std::cout << (pos - pt0).dot_product(normal) << "\n";

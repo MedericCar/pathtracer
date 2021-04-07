@@ -1,8 +1,6 @@
 #pragma once
 
-#include "ray.hh"
 #include "light.hh"
-#include "vector.hh"
 
 namespace isim {
 

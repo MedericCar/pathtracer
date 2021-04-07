@@ -1,7 +1,7 @@
 #pragma once
 
-#include "color.hh"
-#include "vector.hh"
+#include "../utils/color.hh"
+#include "../utils/vector.hh"
 
 namespace isim {
 

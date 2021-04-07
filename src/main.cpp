@@ -1,6 +1,6 @@
-#include "image.hh"
-#include "render.hh"
-#include "parser.hh"
+#include "rendering/image.hh"
+#include "rendering/render.hh"
+#include "rendering/parser.hh"
 
 int main(int argc, char const *argv[])
 {
