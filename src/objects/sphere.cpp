@@ -36,11 +36,6 @@ namespace isim {
                 return std::nullopt; // t0 and t1 < 0, ray is after the sphere
         }
  
-        return std::make_optional<Vector3>(ray.origin + ray.direction * t0); 
+        return std::make_optional<Vector3>(ray.origin + ray.direction * t0);
     }
-
-    Vector3 Sphere::get_surface_normal(const Vector3& pos) const {
-        return (pos - center).normalize();
-    }
-
 }

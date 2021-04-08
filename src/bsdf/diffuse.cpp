@@ -3,7 +3,6 @@
 
 namespace isim {
 
-
 Sample uniform_sample_hemisphere(const Vector3& n) {
     
     float u = random_float(0, 1);

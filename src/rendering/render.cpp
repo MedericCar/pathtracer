@@ -57,7 +57,7 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
 
         // Shadows
         auto light_inter = find_nearest_intersection(scene.get_objects(), 
-                                                        light_ray);
+                                                     light_ray);
         if (!light_inter || light_inter.value().first != obj)
             continue;
 
@@ -109,7 +109,7 @@ Rgb path_trace(const Scene &scene, const Ray& ray, int depth) {
 
     // Add inddirect light by sampling
     Rgb indirect = Rgb(0);
-    int n_samples = 32;  // FIXME
+    int n_samples = 128;  // FIXME
     float inv_samples = 1.0f / n_samples;
     float inv_pdf = 1.0f / material.bsdf->get_pdf();
     
@@ -133,8 +133,11 @@ Rgb path_trace(const Scene &scene, const Ray& ray, int depth) {
 void render(Image &img, const Scene &scene) {
     int n = img.h * img.w;
     float k = 0;
+
     for (size_t j = 0; j < img.h; j++) {
+
         for (size_t i = 0; i < img.w; i++) {
+
             if (j * img.w + i > (k / 100) * n) {
                 std::cout << j * img.w + i << " / " << n << " - ";
                 std::cout << k + 1 << " %\n";

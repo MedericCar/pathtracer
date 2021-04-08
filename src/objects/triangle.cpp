@@ -47,8 +47,4 @@ namespace isim {
         return std::make_optional<Vector3>(ray.origin + ray.direction * t); 
     }
 
-    Vector3 Triangle::get_surface_normal(const Vector3& pos) const {
-        return normal;
-    }
-
 }

@@ -2,12 +2,14 @@
 
 #include "vector.hh"
 
+
 namespace isim {
 
 typedef struct {
     Vector3 dir;
     float cos_theta; // cos(wi,N)
 } Sample;
+
 
 class Bsdf
 {
