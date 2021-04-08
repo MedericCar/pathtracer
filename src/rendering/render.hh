@@ -4,7 +4,7 @@
 #include "scene.hh"
 #include "ray.hh"
 
-#define MAX_DEPTH 2
+#define MAX_DEPTH 4
 
 namespace isim {
 

@@ -92,7 +92,7 @@ Rgb path_trace(const Scene &scene, const Ray& ray, int depth) {
     auto nearest_obj = find_nearest_intersection(scene.get_objects(), ray);
 
     // Recursion stopping case
-    if (!nearest_obj.has_value() || depth == MAX_DEPTH)
+    if (!nearest_obj.has_value())
         return color;
 
     const Object* obj = nearest_obj.value().first;
@@ -102,26 +102,28 @@ Rgb path_trace(const Scene &scene, const Ray& ray, int depth) {
 
     // Add direct light
     Rgb direct = material.ka * material.ke;
+       
+    if (depth == MAX_DEPTH || direct != Rgb(0)) {
+        return direct;
+    }
 
     // Add inddirect light by sampling
-    Rgb indirect = material.kd;
-    int n_samples = 16;  // FIXME
-    float inv_samples = (float) 1.0f / n_samples;
-
-
-    float inv_pdf = (float) 1.0f / material.bsdf->get_pdf();
+    Rgb indirect = Rgb(0);
+    int n_samples = 32;  // FIXME
+    float inv_samples = 1.0f / n_samples;
+    float inv_pdf = 1.0f / material.bsdf->get_pdf();
     
     for (int i = 0; i < n_samples; i++) {
         Sample s = material.bsdf->sample(ray.direction, n);
         Ray sample_ray = { .direction = s.dir, .origin = pos }; 
-        // FIXME indirect += path_trace(scene, sample_ray, depth + 1) * cos(s.cos_theta);
-        indirect += path_trace(scene, sample_ray, depth + 1) * cos(s.cos_theta) * inv_pdf * inv_samples;
+        indirect += material.kd * path_trace(scene, sample_ray, depth + 1) * cos(s.cos_theta) * inv_pdf * inv_samples;
         //std::cout << indirect;
     }
 
-    //std::cout << indirect;
 
+    //indirect *= inv_samples * inv_pdf;
     color = direct + indirect;
+    //std::cout << "FINAL : " << color;
     //color = direct + indirect * (1 / (n_samples * material.bsdf->get_pdf())); 
 
 
