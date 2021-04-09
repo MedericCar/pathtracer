@@ -1,5 +1,6 @@
 #include <utility>
 #include <algorithm>
+#include <thread>
 
 #include "render.hh"
 
@@ -109,7 +110,7 @@ Rgb path_trace(const Scene &scene, const Ray& ray, int depth) {
 
     // Add inddirect light by sampling
     Rgb indirect = Rgb(0);
-    int n_samples = 128;  // FIXME
+    int n_samples = 16;  // FIXME
     float inv_samples = 1.0f / n_samples;
     float inv_pdf = 1.0f / material.bsdf->get_pdf();
     
@@ -130,28 +131,47 @@ Rgb path_trace(const Scene &scene, const Ray& ray, int depth) {
     return color;
 }
 
+void render_aux(Image &img, const Scene &scene, size_t j_start, size_t h, size_t w) {
+
+    for (size_t j = j_start; j < j_start + h; j++) {
+        for (size_t i = 0; i < w; i++) {
+            Ray view_ray = scene.get_camera().get_pixel_ray(i, j);
+            //Rgb color = cast_ray(scene, view_ray, 0);
+            Rgb color = path_trace(scene, view_ray, 0);
+            img.set_pixel(i, j, color);
+        }
+    }
+}
+
 void render(Image &img, const Scene &scene) {
     int n = img.h * img.w;
     float k = 0;
 
-    for (size_t j = 0; j < img.h; j++) {
+    std::vector<std::thread> threads;
+    size_t n_threads = std::thread::hardware_concurrency(); 
 
-        for (size_t i = 0; i < img.w; i++) {
+    size_t block_w = img.w;
+    size_t block_h = img.h / n_threads;
+    size_t j_start = 0;
+    for (size_t i = 0; i < n_threads; i++) {
 
-            if (j * img.w + i > (k / 100) * n) {
-                std::cout << j * img.w + i << " / " << n << " - ";
-                std::cout << k + 1 << " %\n";
-                k++;
-            }
-            //std::cout << i << " " << j << "\n";
-            Ray view_ray = scene.get_camera().get_pixel_ray(i, j);
-            //Rgb color = cast_ray(scene, view_ray, 0);
-            Rgb color = path_trace(scene, view_ray, 0);
-            //std::cout << "color : " << color << "\n";
-            img.set_pixel(i, j, color);
+        if (i == n_threads - 1) {
+            block_h += img.h % n_threads;
         }
+
+        threads.push_back(std::thread(
+            [=, &img, &scene]{
+                render_aux(img, scene, j_start, block_h, block_w);
+            }
+        ));
+
+        j_start += block_h;
     }
-    std::cout << "Im out" << "\n";
+
+    for (auto &thread : threads) {
+        thread.join();
+    }
+
 }
 
 }

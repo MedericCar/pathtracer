@@ -26,5 +26,7 @@ target_include_directories(raytracer PUBLIC "bsdf"
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
+find_package(Threads)
+
 add_executable(app main.cpp)
-target_link_libraries(app PRIVATE raytracer ${CONAN_LIBS})
+target_link_libraries(app PRIVATE raytracer ${CONAN_LIBS} ${CMAKE_THREAD_LIBS_INIT})
