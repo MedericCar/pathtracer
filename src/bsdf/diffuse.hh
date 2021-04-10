@@ -10,15 +10,17 @@ namespace isim {
 class DiffuseBsdf : public Bsdf
 {
     private:
-        float pdf = 1.0f / (2.0f * M_PI);
-        std::uniform_real_distribution<float> dis;
+        float pdf_constant = 1.0f / (2.0f * M_PI);
 
     public:
         DiffuseBsdf() = default;
 
         Sample sample(const Vector3& wo, const Vector3& n) const;
 
-        float get_pdf() const;
+        float eval_bsdf(const Vector3& wo, const Vector3& wi,
+                        const Vector3& n) const;
+
+        float pdf(const Vector3& wo, const Vector3& wi, const Vector3& n) const;
 };
 
 }

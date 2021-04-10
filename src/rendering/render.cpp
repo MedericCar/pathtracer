@@ -1,8 +1,10 @@
 #include <utility>
 #include <algorithm>
 #include <thread>
+#include <atomic>
 
 #include "render.hh"
+#include "../utils/random.hh"
 
 namespace isim {
 
@@ -88,7 +90,7 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
     return color;
 }
 
-Rgb path_trace(const Scene &scene, const Ray& ray, int depth) {
+Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
     Rgb color = Rgb(0.0f); 
     auto nearest_obj = find_nearest_intersection(scene.get_objects(), ray);
 
@@ -98,48 +100,114 @@ Rgb path_trace(const Scene &scene, const Ray& ray, int depth) {
 
     const Object* obj = nearest_obj.value().first;
     Vector3 pos = nearest_obj.value().second;
-    MaterialConstants material = obj->get_material(pos).get_constants(pos);
+    MaterialConstants mat = obj->get_material(pos).get_constants(pos);
     Vector3 n = obj->get_surface_normal(pos);
 
     // Add direct light
-    Rgb direct = material.ka * material.ke;
-       
+    Rgb direct = mat.ke;
     if (depth == MAX_DEPTH || direct != Rgb(0)) {
         return direct;
     }
 
-    // Add inddirect light by sampling
+    // Add indirect light by sampling
     Rgb indirect = Rgb(0);
-    int n_samples = 16;  // FIXME
-    float inv_samples = 1.0f / n_samples;
-    float inv_pdf = 1.0f / material.bsdf->get_pdf();
-    
-    for (int i = 0; i < n_samples; i++) {
-        Sample s = material.bsdf->sample(ray.direction, n);
-        Ray sample_ray = { .direction = s.dir, .origin = pos }; 
-        indirect += material.kd * path_trace(scene, sample_ray, depth + 1) * cos(s.cos_theta) * inv_pdf * inv_samples;
-        //std::cout << indirect;
-    }
+    Sample s = mat.bsdf->sample(ray.direction, n);
+    Ray sample_ray = { .direction = s.dir, .origin = pos + s.dir * 0.001 }; 
 
+    float pdf = mat.bsdf->pdf(ray.direction, s.dir, n);
+    float bsdf = mat.bsdf->eval_bsdf(ray.direction, s.dir, n);
+    indirect += mat.kd * radiance(scene, sample_ray, depth + 1) * bsdf / pdf;
 
-    //indirect *= inv_samples * inv_pdf;
     color = direct + indirect;
-    //std::cout << "FINAL : " << color;
-    //color = direct + indirect * (1 / (n_samples * material.bsdf->get_pdf())); 
-
 
     return color;
 }
 
-void render_aux(Image &img, const Scene &scene, size_t j_start, size_t h, size_t w) {
+Rgb path_trace_pbr(const Scene &scene, const Ray& wo) {
+    Rgb L(0.0f); 
+    Rgb throughput(1.0f);
+    bool specular_bounce = false;
 
+    for (int bounces = 0; ; bounces++) {
+
+        auto nearest_obj = find_nearest_intersection(scene.get_objects(), wo);
+        if (!nearest_obj.has_value() || bounces > MAX_DEPTH)
+            return L;
+
+        // Recover intersection's info
+        const Object* obj = nearest_obj.value().first;
+        Vector3 pos = nearest_obj.value().second;
+        Vector3 n = obj->get_surface_normal(pos);
+        MaterialConstants mat = obj->get_material(pos).get_constants(pos);
+
+        // Intersection with emissive object : two exceptions for adding
+        const Object* hit_light = nullptr;
+        if (mat.ke != Rgb(0)) {
+            hit_light = obj;
+            if (bounces == 0 || specular_bounce) {
+                L += mat.ke * throughput;  // FIXME : should be Light->Le()
+            }
+        }
+
+        // Direct lighting estimation
+        L += throughput * sample_lights(scene, wo, *mat.bsdf, hit_light);
+
+        // Sampling new direction and accumulate indirect lighting estimation
+        Sample wi = mat.bsdf->sample(wo.direction, n);
+        Ray sample_ray = { .direction = wi.dir, .origin = pos + wi.dir * 0.001 }; 
+
+        float pdf = mat.bsdf->pdf(wo.direction, wi.dir, n);
+        float bsdf = mat.bsdf->eval_bsdf(wo.direction, wi.dir, n);
+        throughput *= mat.kd * bsdf / pdf;
+
+        float p = std::max({throughput.r, throughput.g, throughput.b});
+        if (bounces > 5) {
+            if (random_float(0, 1) > p) {
+                break;
+            }
+            throughput *= 1 / (1 - p); // FIXME might be just 1/p
+        } 
+
+    }
+
+    return L;
+}
+
+Rgb sample_lights(const Scene& scene, const Ray& wo, const Bsdf& bsdf,
+                  const Object* hit_light) {
+    return Rgb(0);
+}
+
+
+void render_aux(Image &img, const Scene &scene, std::atomic<int>& progress, 
+                size_t j_start, size_t h, size_t w) {
+
+    size_t n_samples = 16;
+    float inv_samples = 1 / (float) n_samples;
     for (size_t j = j_start; j < j_start + h; j++) {
         for (size_t i = 0; i < w; i++) {
             Ray view_ray = scene.get_camera().get_pixel_ray(i, j);
+
+            // Path tracing
+            Rgb color(0);
+            for (size_t k = 0; k < n_samples; k++) {
+                color += path_trace_pbr(scene, view_ray) * inv_samples;
+                //color += radiance(scene, view_ray, 0) * inv_samples;
+            }
+            
+            // Whitted ray tracing
             //Rgb color = cast_ray(scene, view_ray, 0);
-            Rgb color = path_trace(scene, view_ray, 0);
+
             img.set_pixel(i, j, color);
         }
+        progress += w;
+    }
+}
+
+void progress_counter(std::atomic<int>& progress, int tot) {
+    while (progress != tot) {
+        std::cout << (float) progress / tot * 100 << " %\n";
+        std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 }
 
@@ -149,6 +217,7 @@ void render(Image &img, const Scene &scene) {
 
     std::vector<std::thread> threads;
     size_t n_threads = std::thread::hardware_concurrency(); 
+    std::atomic<int> progress(0);
 
     size_t block_w = img.w;
     size_t block_h = img.h / n_threads;
@@ -160,13 +229,19 @@ void render(Image &img, const Scene &scene) {
         }
 
         threads.push_back(std::thread(
-            [=, &img, &scene]{
-                render_aux(img, scene, j_start, block_h, block_w);
+            [=, &img, &scene, &progress]{
+                render_aux(img, scene, progress, j_start, block_h, block_w);
             }
         ));
 
         j_start += block_h;
     }
+
+    threads.push_back(std::thread(
+        [=, &progress]{
+            progress_counter(progress, n);
+        }
+    ));
 
     for (auto &thread : threads) {
         thread.join();

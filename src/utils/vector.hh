@@ -7,7 +7,7 @@ namespace isim {
 
     class Vector3 {
     
-    private:
+    public:
         float x, y, z;
 
     public:

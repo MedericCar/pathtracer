@@ -71,6 +71,20 @@ Rgb& Rgb::operator*=(const Rgb& other) {
     return *this;
 } 
 
+Rgb Rgb::operator/(float k) const {
+    float new_r = r / k;
+    float new_g = g / k;
+    float new_b = b / k;
+    return Rgb(new_r, new_g, new_b);
+} 
+
+Rgb& Rgb::operator/=(float k) {
+    r /= k;
+    g /= k;
+    b /= k;
+    return *this;
+} 
+
 std::ostream& operator<<(std::ostream &out, Rgb &c) {
 out << +c.r << " " << +c.g << " " << +c.b << std::endl;
 return out;
