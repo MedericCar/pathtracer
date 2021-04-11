@@ -13,6 +13,7 @@ namespace isim {
         Vector3 edge1;
         Vector3 edge2;
         Vector3 normal;
+        float inv_area;
 
     public:
         Triangle(std::shared_ptr<Material> _material, const std::string& id,
@@ -23,6 +24,9 @@ namespace isim {
         inline Vector3 get_surface_normal(const Vector3& pos) const {
             return normal;
         }
+
+        Ray sample(Vector3 pos, float& pdf) const;
+
     };
     
 }

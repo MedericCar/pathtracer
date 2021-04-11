@@ -123,7 +123,49 @@ Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
     return color;
 }
 
-Rgb path_trace_pbr(const Scene &scene, const Ray& wo) {
+Rgb sample_lights(const Scene& scene, const Ray& wo, const Bsdf& bsdf,
+                  const Vector3& pos, const Vector3& n, const Object* target_obj,
+                  const Object* hit_light) {
+
+    Rgb Ld(0);
+    for (auto const& ptr : scene.get_objects()) {  // BIG FIXME IF THERE ARE MANY OBJECTS RIP
+        const Object* l = ptr.get();
+        MaterialConstants mat = l->get_material(pos).get_constants(pos);
+        if (l == hit_light || mat.ke == Rgb(0)) {
+            continue;
+        }
+
+        float pdf = 0.0f;
+        Ray wi = l->sample(pos, pdf);
+
+        auto nearest_obj = find_nearest_intersection(scene.get_objects(), wi);
+        if (!nearest_obj.has_value() || nearest_obj.value().first != target_obj)
+            continue;
+
+        float f = bsdf.eval_bsdf(wo.direction, wi.direction * -1, n);
+        if (f == 0 || pdf == 0.f)
+            continue;
+        
+        float square_norm = (wi.origin - pos).euclidean_norm();
+        square_norm *= square_norm;
+
+        Vector3 light_n = l->get_surface_normal(wi.origin);  // FIXME could save beforehand
+        float cos1 = light_n.dot_product(wi.direction);
+        float cos2 = n.dot_product(wi.direction * -1);
+
+        //Ld += mat.ke * f * std::fmax(n.dot_product(wi.direction * -1), 0) / pdf2;
+        //Ld += mat.ke * f * std::abs(n.dot_product(wi.direction * -1)) / pdf2;
+        Ld += mat.ke * f * cos1 * cos2 / (square_norm * pdf);
+        //std::cout << f << " " << Ld;
+    }
+
+    //if (Ld != Rgb(0))
+    //    std::cout << "Ld computed\n";
+
+    return Ld;
+}
+
+Rgb path_trace_pbr(const Scene &scene, Ray wo) {
     Rgb L(0.0f); 
     Rgb throughput(1.0f);
     bool specular_bounce = false;
@@ -131,8 +173,10 @@ Rgb path_trace_pbr(const Scene &scene, const Ray& wo) {
     for (int bounces = 0; ; bounces++) {
 
         auto nearest_obj = find_nearest_intersection(scene.get_objects(), wo);
-        if (!nearest_obj.has_value() || bounces > MAX_DEPTH)
-            return L;
+        if (!nearest_obj.has_value() || bounces > MAX_DEPTH) {
+            L += throughput * Rgb(0);
+            break;
+        }
 
         // Recover intersection's info
         const Object* obj = nearest_obj.value().first;
@@ -150,16 +194,20 @@ Rgb path_trace_pbr(const Scene &scene, const Ray& wo) {
         }
 
         // Direct lighting estimation
-        L += throughput * sample_lights(scene, wo, *mat.bsdf, hit_light);
+        L += mat.kd * throughput * sample_lights(scene, wo, *mat.bsdf, pos, n, obj, hit_light);
 
         // Sampling new direction and accumulate indirect lighting estimation
         Sample wi = mat.bsdf->sample(wo.direction, n);
-        Ray sample_ray = { .direction = wi.dir, .origin = pos + wi.dir * 0.001 }; 
+        Ray sample_ray = { .direction = wi.dir, .origin = pos + wi.dir * 0.0001 }; 
 
         float pdf = mat.bsdf->pdf(wo.direction, wi.dir, n);
-        float bsdf = mat.bsdf->eval_bsdf(wo.direction, wi.dir, n);
-        throughput *= mat.kd * bsdf / pdf;
+        float f = mat.bsdf->eval_bsdf(wo.direction, wi.dir, n);
+        if (f == 0.f || pdf == 0.f)
+            break;
+        throughput *= mat.kd * f * wi.dir.dot_product(n) / pdf;
 
+        wo = sample_ray;
+        
         float p = std::max({throughput.r, throughput.g, throughput.b});
         if (bounces > 5) {
             if (random_float(0, 1) > p) {
@@ -170,19 +218,13 @@ Rgb path_trace_pbr(const Scene &scene, const Ray& wo) {
 
     }
 
-    return L;
+    return L.clamp(0.f, 1.f);
 }
-
-Rgb sample_lights(const Scene& scene, const Ray& wo, const Bsdf& bsdf,
-                  const Object* hit_light) {
-    return Rgb(0);
-}
-
 
 void render_aux(Image &img, const Scene &scene, std::atomic<int>& progress, 
                 size_t j_start, size_t h, size_t w) {
 
-    size_t n_samples = 16;
+    size_t n_samples = 32;
     float inv_samples = 1 / (float) n_samples;
     for (size_t j = j_start; j < j_start + h; j++) {
         for (size_t i = 0; i < w; i++) {
@@ -191,9 +233,11 @@ void render_aux(Image &img, const Scene &scene, std::atomic<int>& progress,
             // Path tracing
             Rgb color(0);
             for (size_t k = 0; k < n_samples; k++) {
-                color += path_trace_pbr(scene, view_ray) * inv_samples;
+                color += path_trace_pbr(scene, view_ray);
                 //color += radiance(scene, view_ray, 0) * inv_samples;
             }
+
+            color /= n_samples;
             
             // Whitted ray tracing
             //Rgb color = cast_ray(scene, view_ray, 0);
@@ -217,6 +261,7 @@ void render(Image &img, const Scene &scene) {
 
     std::vector<std::thread> threads;
     size_t n_threads = std::thread::hardware_concurrency(); 
+    //n_threads = 1; 
     std::atomic<int> progress(0);
 
     size_t block_w = img.w;

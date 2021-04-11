@@ -19,6 +19,8 @@ namespace isim {
         bool operator!=(const Rgb& c) const;
         bool operator==(const Rgb& c) const;
         
+        Rgb clamp(float a, float b);
+        
         Rgb operator+(const Rgb& c) const;
         Rgb& operator+=(const Rgb& c);
         

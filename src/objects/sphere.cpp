@@ -38,4 +38,5 @@ namespace isim {
  
         return std::make_optional<Vector3>(ray.origin + ray.direction * t0);
     }
+    
 }

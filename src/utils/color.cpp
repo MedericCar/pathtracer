@@ -24,50 +24,52 @@ bool Rgb::operator==(const Rgb &c) const {
     return c.r == r && c.g == g && c.b == b;
 } 
 
-float clamp(float d, float min, float max) {
-    const float t = d < min ? min : d;
-    return t > max ? max : t;
+Rgb Rgb::clamp(float low, float high) {
+    float new_r = std::clamp(r, low, high);
+    float new_g = std::clamp(g, low, high);
+    float new_b = std::clamp(b, low, high);
+    return  Rgb(new_r, new_g, new_b);
 }
 
 Rgb Rgb::operator+(const Rgb &c) const {
-    float new_r = clamp(r + c.r, 0, 1);
-    float new_g = clamp(g + c.g, 0, 1);
-    float new_b = clamp(b + c.b, 0, 1);
+    float new_r = r + c.r;
+    float new_g = g + c.g;
+    float new_b = b + c.b;
     return Rgb(new_r, new_g, new_b);
 } 
 
 Rgb& Rgb::operator+=(const Rgb &c) {
-    r = clamp((r + c.r), 0, 1);
-    g = clamp((g + c.g), 0, 1);
-    b = clamp((b + c.b), 0, 1);
+    r = r + c.r;
+    g = g + c.g;
+    b = b + c.b;
     return *this;
 } 
 
 Rgb Rgb::operator*(float k) const {
-    float new_r = clamp(r * k, 0, 1);
-    float new_g = clamp(g * k, 0, 1);
-    float new_b = clamp(b * k, 0, 1);
+    float new_r = r * k;
+    float new_g = g * k;
+    float new_b = b * k;
     return Rgb(new_r, new_g, new_b);
 } 
 
 Rgb& Rgb::operator*=(float k) {
-    r = clamp(r * k, 0, 1);
-    g = clamp(g * k, 0, 1);
-    b = clamp(b * k, 0, 1);
+    r = r * k;
+    g = g * k;
+    b = b * k;
     return *this;
 } 
 
 Rgb Rgb::operator*(const Rgb& other) const {
-    float new_r = clamp(r * other.r, 0, 1);
-    float new_g = clamp(g * other.g, 0, 1);
-    float new_b = clamp(b * other.b, 0, 1);
+    float new_r = r * other.r;
+    float new_g = g * other.g;
+    float new_b = b * other.b;
     return Rgb(new_r, new_g, new_b);
 } 
 
 Rgb& Rgb::operator*=(const Rgb& other) {
-    r = clamp(r * other.r, 0, 1);
-    g = clamp(g * other.g, 0, 1);
-    b = clamp(b * other.b, 0, 1);
+    r = r * other.r;
+    g = g * other.g;
+    b = b * other.b;
     return *this;
 } 
 

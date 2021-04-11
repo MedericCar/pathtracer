@@ -48,7 +48,8 @@ Sample DiffuseBsdf::sample(const Vector3& wo, const Vector3& n) const {
 float DiffuseBsdf::eval_bsdf(const Vector3& wo, const Vector3& wi,
                              const Vector3& n) const {
 
-    return wi.dot_product(n) / M_PI;
+    //return wi.dot_product(n) / M_PI;
+    return 1 / M_PI;
 }
 
 float DiffuseBsdf::pdf(const Vector3& wo, const Vector3& wi,

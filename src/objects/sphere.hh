@@ -21,6 +21,7 @@ namespace isim {
             return (pos - center).normalize();
         }
 
+
     };
     
 }

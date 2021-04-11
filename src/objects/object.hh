@@ -28,6 +28,9 @@ namespace isim {
         inline const Material& get_material(const Vector3& pos) const {
             return *material;
         }
+
+        virtual Ray sample(Vector3 pos, float& pdf) const;
+
     };
 
 }
