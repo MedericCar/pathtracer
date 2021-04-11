@@ -1,5 +1,5 @@
 #include "diffuse.hh"
-#include "random.hh"
+#include "../utils/random.hh"
 
 namespace isim {
 
@@ -17,7 +17,7 @@ void createCoordinateSystem(const Vector3 &N, Vector3 &nt, Vector3 &nb)
     nb = cross_product(N, nt); 
 } 
 
-Sample uniform_sample_hemisphere(const Vector3& n) {
+Vector3 uniform_sample_hemisphere(const Vector3& n) {
     
     float u = distribution(generator);
     float v = distribution(generator);
@@ -38,10 +38,10 @@ Sample uniform_sample_hemisphere(const Vector3& n) {
         dir.x * nb.z + dir.y * n.z + dir.z * nt.z
     );
 
-    return { world_dir, u };
+    return world_dir;
 }
 
-Sample DiffuseBsdf::sample(const Vector3& wo, const Vector3& n) const { 
+Vector3 DiffuseBsdf::sample(const Vector3& wo, const Vector3& n) const { 
     return uniform_sample_hemisphere(n);    
 }
 

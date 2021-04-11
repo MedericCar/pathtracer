@@ -6,7 +6,7 @@ namespace isim {
 
     Ray PointLight::get_ray(const Vector3 &pt) const {
         return Ray{
-            .direction = (pt - pos).normalize(),
+            .dir = (pt - pos).normalize(),
             .origin = pos
         };
     }

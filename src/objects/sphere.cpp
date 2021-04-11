@@ -11,7 +11,7 @@ namespace isim {
     
     std::optional<Vector3> Sphere::is_intersect(const Ray& ray) const {
         Vector3 oc = center - ray.origin;
-        float d_om = oc.dot_product(ray.direction);
+        float d_om = oc.dot_product(ray.dir);
         float d_cm_2 = oc.dot_product(oc) - d_om * d_om;
         
         float radius2 = radius * radius;
@@ -36,7 +36,7 @@ namespace isim {
                 return std::nullopt; // t0 and t1 < 0, ray is after the sphere
         }
  
-        return std::make_optional<Vector3>(ray.origin + ray.direction * t0);
+        return std::make_optional<Vector3>(ray.origin + ray.dir * t0);
     }
     
 }

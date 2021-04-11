@@ -55,7 +55,7 @@ namespace isim {
         Vector3 center_world = camera2world.homogeneous_mult(center_cam);
 
         Ray ray = {
-            .direction = (pixel_world - center_world).normalize(),
+            .dir = (pixel_world - center_world).normalize(),
             .origin = center_world
         };
 
@@ -76,10 +76,10 @@ namespace isim {
                             u * (pixel_w / 2) -
                             v * (pixel_h / 2);
 
-        Vector3 direction = start + u * pixel_w * x - v * pixel_h * y;
+        Vector3 dir = start + u * pixel_w * x - v * pixel_h * y;
 
         Ray ray = {
-            .direction = direction.normalize(),
+            .dir = dir.normalize(),
             .origin = center
         };
 

@@ -9,7 +9,7 @@
 namespace isim {
 
 std::optional<std::pair<Object const*, Vector3>> 
-find_nearest_intersection(const std::vector<std::unique_ptr<Object>>& objects,
+nearest_intersection(const std::vector<std::unique_ptr<Object>>& objects,
                             const Ray &ray) {
 
     std::vector<std::pair<Object const*, Vector3>> encountered;
@@ -38,7 +38,7 @@ find_nearest_intersection(const std::vector<std::unique_ptr<Object>>& objects,
 
 Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
     Rgb color = Rgb(10/255); 
-    auto nearest_obj = find_nearest_intersection(scene.get_objects(), ray);
+    auto nearest_obj = nearest_intersection(scene.get_objects(), ray);
 
     // Set background
     if (!nearest_obj.has_value() && depth <= 1)
@@ -51,15 +51,15 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
 
     const Object* obj = nearest_obj.value().first;
     Vector3 pos = nearest_obj.value().second;
-    MaterialConstants material = obj->get_material(pos).get_constants(pos);
+    Material material = obj->get_material(pos);
 
-    Vector3 n = obj->get_surface_normal(pos);
+    Vector3 n = obj->get_normal(pos);
 
     for (auto const& p : scene.get_lights()) {
         Ray light_ray = p->get_ray(pos);
 
         // Shadows
-        auto light_inter = find_nearest_intersection(scene.get_objects(), 
+        auto light_inter = nearest_intersection(scene.get_objects(), 
                                                      light_ray);
         if (!light_inter || light_inter.value().first != obj)
             continue;
@@ -68,19 +68,19 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
         color = material.ka * material.ke;
 
         // Diffuse component
-        Vector3 l = light_ray.direction * -1;
+        Vector3 l = light_ray.dir * -1;
         float l_dot_n = l.dot_product(n);
         color += material.kd * l_dot_n; 
 
         // Specular component
         Vector3 r = n * 2 * l_dot_n - l;
-        float v_dot_r = (ray.direction * -1).dot_product(r);
+        float v_dot_r = (ray.dir * -1).dot_product(r);
         color += material.ks * std::max(0.0, pow(v_dot_r, (int) material.ns));
     }
 
     // Reflection
     Ray reflect_ray = Ray{
-        .direction = ray.direction - n * 2 * ray.direction.dot_product(n),
+        .dir = ray.dir - n * 2 * ray.dir.dot_product(n),
         .origin = pos + n * 0.001
     };
 
@@ -92,7 +92,7 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
 
 Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
     Rgb color = Rgb(0.0f); 
-    auto nearest_obj = find_nearest_intersection(scene.get_objects(), ray);
+    auto nearest_obj = nearest_intersection(scene.get_objects(), ray);
 
     // Recursion stopping case
     if (!nearest_obj.has_value())
@@ -100,8 +100,8 @@ Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
 
     const Object* obj = nearest_obj.value().first;
     Vector3 pos = nearest_obj.value().second;
-    MaterialConstants mat = obj->get_material(pos).get_constants(pos);
-    Vector3 n = obj->get_surface_normal(pos);
+    Material mat = obj->get_material(pos);
+    Vector3 n = obj->get_normal(pos);
 
     // Add direct light
     Rgb direct = mat.ke;
@@ -111,11 +111,11 @@ Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
 
     // Add indirect light by sampling
     Rgb indirect = Rgb(0);
-    Sample s = mat.bsdf->sample(ray.direction, n);
-    Ray sample_ray = { .direction = s.dir, .origin = pos + s.dir * 0.001 }; 
+    Vector3 wi = mat.bsdf->sample(ray.dir, n);
+    Ray sample_ray = { .dir = wi, .origin = pos + wi * 0.001 }; 
 
-    float pdf = mat.bsdf->pdf(ray.direction, s.dir, n);
-    float bsdf = mat.bsdf->eval_bsdf(ray.direction, s.dir, n);
+    float pdf = mat.bsdf->pdf(ray.dir, wi, n);
+    float bsdf = mat.bsdf->eval_bsdf(ray.dir, wi, n);
     indirect += mat.kd * radiance(scene, sample_ray, depth + 1) * bsdf / pdf;
 
     color = direct + indirect;
@@ -123,56 +123,53 @@ Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
     return color;
 }
 
-Rgb sample_lights(const Scene& scene, const Ray& wo, const Bsdf& bsdf,
+Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Bsdf& bsdf,
                   const Vector3& pos, const Vector3& n, const Object* target_obj,
                   const Object* hit_light) {
 
     Rgb Ld(0);
     for (auto const& ptr : scene.get_objects()) {  // BIG FIXME IF THERE ARE MANY OBJECTS RIP
         const Object* l = ptr.get();
-        MaterialConstants mat = l->get_material(pos).get_constants(pos);
-        if (l == hit_light || mat.ke == Rgb(0)) {
+        Material mat = l->get_material(pos);
+
+        // Dismiss if not light or taken into account in specific cases
+        if (mat.ke == Rgb(0) || l == hit_light) {
             continue;
         }
 
         float pdf = 0.0f;
-        Ray wi = l->sample(pos, pdf);
+        Ray ray_in = l->sample(pos, pdf);
 
-        auto nearest_obj = find_nearest_intersection(scene.get_objects(), wi);
+        auto nearest_obj = nearest_intersection(scene.get_objects(), ray_in);
         if (!nearest_obj.has_value() || nearest_obj.value().first != target_obj)
             continue;
 
-        float f = bsdf.eval_bsdf(wo.direction, wi.direction * -1, n);
+        float f = bsdf.eval_bsdf(ray_out.dir, ray_in.dir * -1, n);
         if (f == 0 || pdf == 0.f)
             continue;
         
-        float square_norm = (wi.origin - pos).euclidean_norm();
+        // Sample the area : need to convert var of integration to solid angle expression
+        float square_norm = (ray_in.origin - pos).euclidean_norm();
         square_norm *= square_norm;
 
-        Vector3 light_n = l->get_surface_normal(wi.origin);  // FIXME could save beforehand
-        float cos1 = light_n.dot_product(wi.direction);
-        float cos2 = n.dot_product(wi.direction * -1);
+        Vector3 light_n = l->get_normal(ray_in.origin);  // FIXME could save beforehand
+        float cos1 = light_n.dot_product(ray_in.dir);
+        float cos2 = n.dot_product(ray_in.dir * -1);
 
-        //Ld += mat.ke * f * std::fmax(n.dot_product(wi.direction * -1), 0) / pdf2;
-        //Ld += mat.ke * f * std::abs(n.dot_product(wi.direction * -1)) / pdf2;
-        Ld += mat.ke * f * cos1 * cos2 / (square_norm * pdf);
-        //std::cout << f << " " << Ld;
+        Ld += mat.ke * f * cos1 * cos2 * 2 / (square_norm * pdf);
     }
-
-    //if (Ld != Rgb(0))
-    //    std::cout << "Ld computed\n";
 
     return Ld;
 }
 
-Rgb path_trace_pbr(const Scene &scene, Ray wo) {
+Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
     Rgb L(0.0f); 
     Rgb throughput(1.0f);
     bool specular_bounce = false;
 
     for (int bounces = 0; ; bounces++) {
 
-        auto nearest_obj = find_nearest_intersection(scene.get_objects(), wo);
+        auto nearest_obj = nearest_intersection(scene.get_objects(), ray_out);
         if (!nearest_obj.has_value() || bounces > MAX_DEPTH) {
             L += throughput * Rgb(0);
             break;
@@ -181,8 +178,8 @@ Rgb path_trace_pbr(const Scene &scene, Ray wo) {
         // Recover intersection's info
         const Object* obj = nearest_obj.value().first;
         Vector3 pos = nearest_obj.value().second;
-        Vector3 n = obj->get_surface_normal(pos);
-        MaterialConstants mat = obj->get_material(pos).get_constants(pos);
+        Vector3 n = obj->get_normal(pos);
+        Material mat = obj->get_material(pos);
 
         // Intersection with emissive object : two exceptions for adding
         const Object* hit_light = nullptr;
@@ -194,20 +191,22 @@ Rgb path_trace_pbr(const Scene &scene, Ray wo) {
         }
 
         // Direct lighting estimation
-        L += mat.kd * throughput * sample_lights(scene, wo, *mat.bsdf, pos, n, obj, hit_light);
+        L += mat.kd * throughput * sample_lights(scene, ray_out, *mat.bsdf, pos,
+                                                 n, obj, hit_light);
 
         // Sampling new direction and accumulate indirect lighting estimation
-        Sample wi = mat.bsdf->sample(wo.direction, n);
-        Ray sample_ray = { .direction = wi.dir, .origin = pos + wi.dir * 0.0001 }; 
+        Vector3 wi = mat.bsdf->sample(ray_out.dir, n);
+        Ray sample_ray = { .dir = wi, .origin = pos + wi * 0.0001 }; 
 
-        float pdf = mat.bsdf->pdf(wo.direction, wi.dir, n);
-        float f = mat.bsdf->eval_bsdf(wo.direction, wi.dir, n);
+        float pdf = mat.bsdf->pdf(ray_out.dir, wi, n);
+        float f = mat.bsdf->eval_bsdf(ray_out.dir, wi, n);
         if (f == 0.f || pdf == 0.f)
             break;
-        throughput *= mat.kd * f * wi.dir.dot_product(n) / pdf;
+        throughput *= mat.kd * f * wi.dot_product(n) / pdf;
 
-        wo = sample_ray;
+        ray_out = sample_ray;
         
+        // Russian roulette to eliminate some paths
         float p = std::max({throughput.r, throughput.g, throughput.b});
         if (bounces > 5) {
             if (random_float(0, 1) > p) {
@@ -234,7 +233,7 @@ void render_aux(Image &img, const Scene &scene, std::atomic<int>& progress,
             Rgb color(0);
             for (size_t k = 0; k < n_samples; k++) {
                 color += path_trace_pbr(scene, view_ray);
-                //color += radiance(scene, view_ray, 0) * inv_samples;
+                //color += radiance(scene, view_ray, 0);
             }
 
             color /= n_samples;

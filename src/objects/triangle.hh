@@ -21,7 +21,7 @@ namespace isim {
 
         std::optional<Vector3> is_intersect(const Ray& ray) const;
 
-        inline Vector3 get_surface_normal(const Vector3& pos) const {
+        inline Vector3 get_normal(const Vector3& pos) const {
             return normal;
         }
 

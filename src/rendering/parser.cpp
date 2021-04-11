@@ -9,7 +9,7 @@
 #include "../objects/point_light.hh"
 #include "../objects/sphere.hh"
 #include "../objects/triangle.hh"
-#include "../materials/uniform_texture.hh"
+#include "../materials/material.hh"
 #include "../bsdf/diffuse.hh"
 
 
@@ -46,18 +46,18 @@ std::vector<std::shared_ptr<Material>> load_materials(json j) {
         auto ke = mat.at("ke").get<std::array<float, 3>>();
 
         float ns = mat.at("ns").get<float>();
+        float ni = mat.at("ni").get<float>();
         
         if (mat.at("type").get<std::string>() == "uniform") {
-            MaterialConstants c = { 
-                Rgb(ka),
-                Rgb(kd), 
-                Rgb(ks),
-                ns,
-                Rgb(ke),
-                0,
-                std::make_shared<DiffuseBsdf>(DiffuseBsdf())
-            };
-            materials.emplace_back(std::make_shared<UniformTexture>(c));
+            materials.emplace_back(std::make_shared<Material>(
+                Rgb(ka),  // ka
+                Rgb(kd),   // kd
+                Rgb(ks),  // ks
+                ns,  // ns
+                Rgb(ke),  // ke
+                ni,  //ni
+                std::make_shared<DiffuseBsdf>(DiffuseBsdf())  // bsdf
+            ));
         }
     }
 
@@ -138,16 +138,15 @@ void load_meshes(const std::string& obj_file, const std::string& mtl_dir,
     std::vector<std::shared_ptr<Material>> materials;
     for (auto const& mtl : mtls) {
         // FIXME : follow MTL format
-        MaterialConstants c = {
-            .ka = Rgb(mtl.ambient[0], mtl.ambient[1], mtl.ambient[2]),
-            .kd = Rgb(mtl.diffuse[0], mtl.diffuse[1], mtl.diffuse[2]),
-            .ks = Rgb(mtl.specular[0], mtl.specular[1], mtl.specular[2]),
-            .ns = mtl.shininess,
-            .ke = Rgb(mtl.emission[0], mtl.emission[1], mtl.emission[2]),
-            .illumination = (float) mtl.illum,
-            .bsdf = std::make_shared<DiffuseBsdf>(DiffuseBsdf())
-        };
-        materials.emplace_back(std::make_shared<UniformTexture>(c));
+        materials.emplace_back(std::make_shared<Material>(
+            Rgb(mtl.ambient[0], mtl.ambient[1], mtl.ambient[2]),  // ka
+            Rgb(mtl.diffuse[0], mtl.diffuse[1], mtl.diffuse[2]),  // kd
+            Rgb(mtl.specular[0], mtl.specular[1], mtl.specular[2]),  // ks
+            mtl.shininess,  // ns
+            Rgb(mtl.emission[0], mtl.emission[1], mtl.emission[2]),  // ke
+            mtl.ior,  // ni
+            std::make_shared<DiffuseBsdf>(DiffuseBsdf()) // bsdf
+        ));
     }
 
     // Traverse shapes

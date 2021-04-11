@@ -23,7 +23,7 @@ namespace isim {
         virtual std::optional<Vector3> is_intersect(const Ray& ray) const = 0;
 
         virtual inline Vector3
-        get_surface_normal(const Vector3& pos) const = 0;
+        get_normal(const Vector3& pos) const = 0;
 
         inline const Material& get_material(const Vector3& pos) const {
             return *material;

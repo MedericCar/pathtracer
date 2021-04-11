@@ -7,13 +7,13 @@
 
 namespace isim {
 
-class DiffuseBsdf : public Bsdf
+class SpecularBsdf : public Bsdf
 {
     private:
-        float pdf_constant = 1.0f / (2.0f * M_PI);
+        float pdf_constant = 1.0f;
 
     public:
-        DiffuseBsdf() = default;
+        SpecularBsdf() = default;
 
         Vector3 sample(const Vector3& wo, const Vector3& n) const;
 

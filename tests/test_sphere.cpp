@@ -5,7 +5,7 @@
 
 TEST(sphere, intersect_before) {
     isim::Ray ray = {
-        .direction = isim::Vector3(0, -2.9, -1.5),
+        .dir = isim::Vector3(0, -2.9, -1.5),
         .origin = isim::Vector3(0, 3, 2)
     };
 
@@ -17,7 +17,7 @@ TEST(sphere, intersect_before) {
 
 TEST(sphere, intersect_in_center) {
     isim::Ray ray = {
-        .direction = isim::Vector3(-1, -1, -1),
+        .dir = isim::Vector3(-1, -1, -1),
         .origin = isim::Vector3(2, 2, 2)
     };
 
@@ -29,7 +29,7 @@ TEST(sphere, intersect_in_center) {
 
 TEST(sphere, ray_after) {
     isim::Ray ray = {
-        .direction = isim::Vector3(1, 1, 1),
+        .dir = isim::Vector3(1, 1, 1),
         .origin = isim::Vector3(2, 2, 2)
     };
 
@@ -41,7 +41,7 @@ TEST(sphere, ray_after) {
 
 TEST(sphere, ray_in) {
     isim::Ray ray = {
-        .direction = isim::Vector3(1, 1, 1),
+        .dir = isim::Vector3(1, 1, 1),
         .origin = isim::Vector3(0, 0, 0)
     };
 

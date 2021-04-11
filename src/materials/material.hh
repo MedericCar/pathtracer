@@ -8,26 +8,23 @@
 
 namespace isim {
 
-    struct MaterialConstants {
+    class Material {
+
+    public:
         Rgb ka;  // ambient
         Rgb kd;  // diffusivity
         Rgb ks;  // specularity
         float ns;  // specular exponent
         Rgb ke;  // emissive
-        float illumination;
+        float ni;  // index of refraction
         std::shared_ptr<Bsdf> bsdf; 
-    };
 
-    class Material {
-
-    private:
-        MaterialConstants constants;
     public:
-        Material() = default;
-        virtual ~Material() = default;
+        Material(Rgb _ka , Rgb _kd, Rgb _ks, float _ns, Rgb _ke, float _ni,
+                 std::shared_ptr<Bsdf> _bsdf) 
+          : ka(_ka), kd(_kd), ks(_ks), ns(_ns), ke(_ke), ni(_ni), bsdf(_bsdf) 
+        {}
 
-        virtual MaterialConstants
-        get_constants(const Vector3& pos) const = 0;
     };
     
 }

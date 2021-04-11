@@ -5,7 +5,7 @@
 namespace isim {
 
     struct Ray {
-        Vector3 direction;
+        Vector3 dir;
         Vector3 origin;
     };
     

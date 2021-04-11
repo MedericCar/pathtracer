@@ -25,7 +25,7 @@ Triangle::Triangle(std::shared_ptr<Material> _material,
 //   - reorganise equation of intersection (unknowns should be t, u, v)
 //   - solve system using Cramer's rule
 std::optional<Vector3> Triangle::is_intersect(const Ray& ray) const {
-    Vector3 h = cross_product(ray.direction, edge2);
+    Vector3 h = cross_product(ray.dir, edge2);
     float a = edge1.dot_product(h);
 
     if (a > - EPSILON && a < EPSILON)
@@ -39,7 +39,7 @@ std::optional<Vector3> Triangle::is_intersect(const Ray& ray) const {
         return std::nullopt;
 
     Vector3 q = cross_product(s, edge1);
-    float v = ray.direction.dot_product(q) * f;
+    float v = ray.dir.dot_product(q) * f;
     if (v < 0 || u + v > 1)
         return std::nullopt;  // no intersection 
 
@@ -47,7 +47,7 @@ std::optional<Vector3> Triangle::is_intersect(const Ray& ray) const {
     if (t < EPSILON)
         return std::nullopt;  // intersection is behind camera
 
-    return std::make_optional<Vector3>(ray.origin + ray.direction * t); 
+    return std::make_optional<Vector3>(ray.origin + ray.dir * t); 
 }
 
 std::pair<float, float> sample_uniform_triangle(float u, float v)
@@ -67,15 +67,15 @@ Ray Triangle::sample(Vector3 pos, float& pdf) const {
     e2 = p.second;
     Vector3 sample =  pt0 * e1 + pt1 * e2 + pt2 * (1 - e1 - e2); 
 
-    Vector3 direction = (pos - sample).normalize();
+    Vector3 dir = (pos - sample).normalize();
     Vector3 origin;
-    if (direction.dot_product(normal) < 0) {
+    if (dir.dot_product(normal) < 0) {
         origin = sample - normal * 0.0001;
     } else {
         origin = sample + normal * 0.0001;
     }
 
-    return { .direction = direction, .origin = origin };
+    return { .dir = dir, .origin = origin };
 }
 
 }
