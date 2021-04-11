@@ -1,6 +1,7 @@
 set(SRC_RAYTRACER "bsdf/bsdf.cpp"
                   "bsdf/diffuse.cpp"
                   "bsdf/specular.cpp"
+                  "materials/material.cpp"
                   "objects/object.cpp"
                   "objects/point_light.cpp"
                   "objects/sphere.cpp"

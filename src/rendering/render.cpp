@@ -3,8 +3,8 @@
 #include <thread>
 #include <atomic>
 
-#include "render.hh"
 #include "../utils/random.hh"
+#include "render.hh"
 
 namespace isim {
 
@@ -51,7 +51,7 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
 
     const Object* obj = nearest_obj.value().first;
     Vector3 pos = nearest_obj.value().second;
-    Material material = obj->get_material(pos);
+    Material mat = obj->get_material(pos);
 
     Vector3 n = obj->get_normal(pos);
 
@@ -65,17 +65,18 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
             continue;
 
         // Ambient component
-        color = material.ka * material.ke;
+        color = mat.constants.ka * mat.constants.ke;
 
         // Diffuse component
         Vector3 l = light_ray.dir * -1;
         float l_dot_n = l.dot_product(n);
-        color += material.kd * l_dot_n; 
+        color += mat.constants.kd * l_dot_n; 
 
         // Specular component
         Vector3 r = n * 2 * l_dot_n - l;
         float v_dot_r = (ray.dir * -1).dot_product(r);
-        color += material.ks * std::max(0.0, pow(v_dot_r, (int) material.ns));
+        color += mat.constants.ks 
+            * std::max(0.0, pow(v_dot_r, (int) mat.constants.ns));
     }
 
     // Reflection
@@ -85,7 +86,7 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
     };
 
     float k = (color.r + color.g + color.b) / 3;
-    color += cast_ray(scene, reflect_ray, depth + 1) * material.ks * k;
+    color += cast_ray(scene, reflect_ray, depth + 1) * mat.constants.ks * k;
 
     return color;
 }
@@ -104,7 +105,7 @@ Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
     Vector3 n = obj->get_normal(pos);
 
     // Add direct light
-    Rgb direct = mat.ke;
+    Rgb direct = mat.constants.ke;
     if (depth == MAX_DEPTH || direct != Rgb(0)) {
         return direct;
     }
@@ -115,25 +116,25 @@ Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
     Ray sample_ray = { .dir = wi, .origin = pos + wi * 0.001 }; 
 
     float pdf = mat.bsdf->pdf(ray.dir, wi, n);
-    float bsdf = mat.bsdf->eval_bsdf(ray.dir, wi, n);
-    indirect += mat.kd * radiance(scene, sample_ray, depth + 1) * bsdf / pdf;
+    Rgb bsdf = mat.bsdf->eval_bsdf(ray.dir, wi, n);
+    indirect += radiance(scene, sample_ray, depth + 1) * bsdf / pdf;
 
     color = direct + indirect;
 
     return color;
 }
 
-Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Bsdf& bsdf,
-                  const Vector3& pos, const Vector3& n, const Object* target_obj,
+Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos, 
+                  const Vector3& n, const Object* target_obj,
                   const Object* hit_light) {
 
     Rgb Ld(0);
     for (auto const& ptr : scene.get_objects()) {  // BIG FIXME IF THERE ARE MANY OBJECTS RIP
         const Object* l = ptr.get();
-        Material mat = l->get_material(pos);
+        Material light_mat = l->get_material(pos);
 
         // Dismiss if not light or taken into account in specific cases
-        if (mat.ke == Rgb(0) || l == hit_light) {
+        if (light_mat.constants.ke == Rgb(0) || l == hit_light) {
             continue;
         }
 
@@ -144,8 +145,9 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Bsdf& bsdf,
         if (!nearest_obj.has_value() || nearest_obj.value().first != target_obj)
             continue;
 
-        float f = bsdf.eval_bsdf(ray_out.dir, ray_in.dir * -1, n);
-        if (f == 0 || pdf == 0.f)
+        Rgb f = target_obj->get_material(pos).eval_bsdf(ray_out.dir,
+                                                        ray_in.dir * -1, n);
+        if (f == Rgb(0) || pdf == 0.f)
             continue;
         
         // Sample the area : need to convert var of integration to solid angle expression
@@ -156,7 +158,7 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Bsdf& bsdf,
         float cos1 = light_n.dot_product(ray_in.dir);
         float cos2 = n.dot_product(ray_in.dir * -1);
 
-        Ld += mat.ke * f * cos1 * cos2 * 2 / (square_norm * pdf);
+        Ld += f * cos1 * cos2 * 2 / (square_norm * pdf);
     }
 
     return Ld;
@@ -183,26 +185,25 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
 
         // Intersection with emissive object : two exceptions for adding
         const Object* hit_light = nullptr;
-        if (mat.ke != Rgb(0)) {
+        if (mat.constants.ke != Rgb(0)) {
             hit_light = obj;
             if (bounces == 0 || specular_bounce) {
-                L += mat.ke * throughput;  // FIXME : should be Light->Le()
+                L += mat.constants.ke * throughput;  // FIXME : should be Light->Le()
             }
         }
 
         // Direct lighting estimation
-        L += mat.kd * throughput * sample_lights(scene, ray_out, *mat.bsdf, pos,
-                                                 n, obj, hit_light);
+        L += throughput * sample_lights(scene, ray_out, pos, n, obj, hit_light);
 
         // Sampling new direction and accumulate indirect lighting estimation
         Vector3 wi = mat.bsdf->sample(ray_out.dir, n);
         Ray sample_ray = { .dir = wi, .origin = pos + wi * 0.0001 }; 
 
         float pdf = mat.bsdf->pdf(ray_out.dir, wi, n);
-        float f = mat.bsdf->eval_bsdf(ray_out.dir, wi, n);
+        Rgb f = mat.eval_bsdf(ray_out.dir, wi, n);
         if (f == 0.f || pdf == 0.f)
             break;
-        throughput *= mat.kd * f * wi.dot_product(n) / pdf;
+        throughput *= f * wi.dot_product(n) / pdf;
 
         ray_out = sample_ray;
         

@@ -8,8 +8,6 @@ namespace isim {
 
 class Bsdf
 {
-    private:
-
     public:
         Bsdf() = default;
 

@@ -3,9 +3,6 @@
 
 namespace isim {
 
-std::default_random_engine generator; 
-std::uniform_real_distribution<float> distribution(0.0f, 1.0f); 
-
 void createCoordinateSystem(const Vector3 &N, Vector3 &nt, Vector3 &nb) 
 { 
     if (std::fabs(N.get_x()) > std::fabs(N.get_y())) {
@@ -19,8 +16,8 @@ void createCoordinateSystem(const Vector3 &N, Vector3 &nt, Vector3 &nb)
 
 Vector3 uniform_sample_hemisphere(const Vector3& n) {
     
-    float u = distribution(generator);
-    float v = distribution(generator);
+    float u = random_float(0.f, 1.f);
+    float v = random_float(0.f, 1.f);
 
     float sin_theta = std::sqrt(1.0f - u * u);
     float phi = 2 * M_PI * v; 
@@ -48,7 +45,6 @@ Vector3 DiffuseBsdf::sample(const Vector3& wo, const Vector3& n) const {
 float DiffuseBsdf::eval_bsdf(const Vector3& wo, const Vector3& wi,
                              const Vector3& n) const {
 
-    //return wi.dot_product(n) / M_PI;
     return 1 / M_PI;
 }
 
