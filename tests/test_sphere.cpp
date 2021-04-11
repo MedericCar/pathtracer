@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 
-#include "uniform_texture.hh"
 #include "sphere.hh"
 
 TEST(sphere, intersect_before) {

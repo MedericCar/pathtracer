@@ -38,17 +38,17 @@ Vector3 uniform_sample_hemisphere(const Vector3& n) {
     return world_dir;
 }
 
-Vector3 DiffuseBsdf::sample(const Vector3& wo, const Vector3& n) const { 
+Vector3 DiffuseMat::sample(const Vector3& wo, const Vector3& n) const { 
     return uniform_sample_hemisphere(n);    
 }
 
-float DiffuseBsdf::eval_bsdf(const Vector3& wo, const Vector3& wi,
-                             const Vector3& n) const {
+Rgb DiffuseMat::eval_bsdf(const Vector3& wo, const Vector3& wi,
+                          const Vector3& n) const {
 
-    return 1 / M_PI;
+    return kd / M_PI;
 }
 
-float DiffuseBsdf::pdf(const Vector3& wo, const Vector3& wi,
+float DiffuseMat::pdf(const Vector3& wo, const Vector3& wi,
                        const Vector3& n) const {
     return pdf_constant;
 }

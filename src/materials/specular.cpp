@@ -23,7 +23,8 @@ float fr_dielectric(float cos_theta_i, float eta_i, float eta_t) {
 
     float cos_theta_t = std::sqrt(std::max(0.f, 1 - sin_theta_t * sin_theta_t));
 
-    // Fresnel reflectance formulae for dielectrics : parallel and perpendicular polarizations
+    // Fresnel reflectance formulae for dielectrics : parallel and perpendicular
+    // polarizations
     float r_par = ((eta_t * cos_theta_i) - (eta_i * cos_theta_t)) /
                   ((eta_t * cos_theta_i) + (eta_i * cos_theta_t));
     float r_per = ((eta_i * cos_theta_i) - (eta_t * cos_theta_t)) /
@@ -31,15 +32,19 @@ float fr_dielectric(float cos_theta_i, float eta_i, float eta_t) {
 
     return (r_par * r_par + r_per * r_per) / 2;
 }
-
-float SpecularBsdf::eval_bsdf(const Vector3& wo, const Vector3& wi,
-                             const Vector3& n) const {
-
-    
-    return 1 / M_PI;
+        
+Vector3 SpecularMat::sample(const Vector3& wo, const Vector3& n) const {
+    return n * 2 * wo.dot_product(n) - wo;
 }
 
-float SpecularBsdf::pdf(const Vector3& wo, const Vector3& wi,
+Rgb SpecularMat::eval_bsdf(const Vector3& wo, const Vector3& wi,
+                           const Vector3& n) const {
+
+    float cos_theta_i = wi.dot_product(n); // potential FIXME 
+    return fr_dielectric(cos_theta_i, ni_i, ni_t) / std::abs(cos_theta_i);
+}
+
+float SpecularMat::pdf(const Vector3& wo, const Vector3& wi,
                        const Vector3& n) const {
     return pdf_constant;
 }

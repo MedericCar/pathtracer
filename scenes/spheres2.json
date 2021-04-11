@@ -3,8 +3,8 @@
         "center": [0, 1, 3],
         "target": [0, 0, 0],
         "fov": 90,
-        "width": 500,
-        "height": 500
+        "width": 200,
+        "height": 200
     },
 
     "lights" : [
@@ -25,13 +25,13 @@
             "ni" : 1
         },
         {
-            "type" : "specular",
+            "type" : "uniform",
             "ka" : [1, 1, 1],
             "kd" : [1, 1, 1],
             "ks" : [1, 1, 1],
             "ns" : 5,
             "ke" : [0, 0, 0],
-            "ni" : 2
+            "ni" : 1
 
         },
         {

@@ -25,8 +25,8 @@ namespace isim {
         virtual inline Vector3
         get_normal(const Vector3& pos) const = 0;
 
-        inline const Material& get_material(const Vector3& pos) const {
-            return *material;
+        inline const Material* get_material(const Vector3& pos) const {
+            return material.get();
         }
 
         virtual Ray sample(Vector3 pos, float& pdf) const;

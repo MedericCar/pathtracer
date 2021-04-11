@@ -2,16 +2,17 @@
 
 namespace isim {
 
-Material::Material(Rgb _ka , Rgb _kd, Rgb _ks, float _ns, Rgb _ke, float _ni,
-                   std::shared_ptr<Bsdf> _bsdf) 
-  : bsdf(_bsdf) {
-    constants = {_ka, _kd, _ks, _ns, _ke, _ni};
+Material::Material() {
+    ka = Rgb(0);
+    kd = Rgb(0);
+    ks = Rgb(0);
+    ns = 0;
+    ke = Rgb(0);
+    ni_t = 0;
+    ni_i = 0;
 }
 
-Rgb Material::eval_bsdf(const Vector3& wo, const Vector3& wi,
-                          const Vector3& n) const {
-
-    return constants.kd * bsdf->eval_bsdf(wo, wi, n);
-}
+Material::Material(Rgb _ka , Rgb _kd, Rgb _ks, float _ns, Rgb _ke, float _ni) 
+  : ka(_ka), kd(_kd), ks(_ks), ns(_ns), ke(_ke), ni_t(_ni) {}
 
 }

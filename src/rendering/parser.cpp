@@ -9,8 +9,8 @@
 #include "../objects/point_light.hh"
 #include "../objects/sphere.hh"
 #include "../objects/triangle.hh"
-#include "../materials/material.hh"
-#include "../bsdf/diffuse.hh"
+#include "../materials/diffuse.hh"
+#include "../materials/specular.hh"
 
 
 using json = nlohmann::json;
@@ -49,14 +49,14 @@ std::vector<std::shared_ptr<Material>> load_materials(json j) {
         float ni = mat.at("ni").get<float>();
         
         if (mat.at("type").get<std::string>() == "uniform") {
-            materials.emplace_back(std::make_shared<Material>(
-                Rgb(ka),  // ka
-                Rgb(kd),   // kd
+            materials.emplace_back(std::make_shared<DiffuseMat>(
+                Rgb(kd),   // ke
+                Rgb(ke)   // kd
+            ));
+        } else if (mat.at("type").get<std::string>() == "specular") {
+            materials.emplace_back(std::make_shared<SpecularMat>(
                 Rgb(ks),  // ks
-                ns,  // ns
-                Rgb(ke),  // ke
-                ni,  //ni
-                std::make_shared<DiffuseBsdf>(DiffuseBsdf())  // bsdf
+                ni  //ni
             ));
         }
     }
@@ -138,14 +138,9 @@ void load_meshes(const std::string& obj_file, const std::string& mtl_dir,
     std::vector<std::shared_ptr<Material>> materials;
     for (auto const& mtl : mtls) {
         // FIXME : follow MTL format
-        materials.emplace_back(std::make_shared<Material>(
-            Rgb(mtl.ambient[0], mtl.ambient[1], mtl.ambient[2]),  // ka
+        materials.emplace_back(std::make_shared<DiffuseMat>(
             Rgb(mtl.diffuse[0], mtl.diffuse[1], mtl.diffuse[2]),  // kd
-            Rgb(mtl.specular[0], mtl.specular[1], mtl.specular[2]),  // ks
-            mtl.shininess,  // ns
-            Rgb(mtl.emission[0], mtl.emission[1], mtl.emission[2]),  // ke
-            mtl.ior,  // ni
-            std::make_shared<DiffuseBsdf>(DiffuseBsdf()) // bsdf
+            Rgb(mtl.emission[0], mtl.emission[1], mtl.emission[2])  // ke
         ));
     }
 
