@@ -34,14 +34,14 @@ float fr_dielectric(float cos_theta_i, float eta_i, float eta_t) {
 }
         
 Vector3 SpecularMat::sample(const Vector3& wo, const Vector3& n) const {
-    return n * 2 * wo.dot_product(n) - wo;
+    return  wo - n * 2 * wo.dot_product(n);
 }
 
 Rgb SpecularMat::eval_bsdf(const Vector3& wo, const Vector3& wi,
                            const Vector3& n) const {
 
     float cos_theta_i = wi.dot_product(n); // potential FIXME 
-    return fr_dielectric(cos_theta_i, ni_i, ni_t) / std::abs(cos_theta_i);
+    return ks * fr_dielectric(cos_theta_i, ni_i, ni_t) / std::abs(cos_theta_i);
 }
 
 float SpecularMat::pdf(const Vector3& wo, const Vector3& wi,

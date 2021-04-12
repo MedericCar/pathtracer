@@ -125,7 +125,7 @@ Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
 
 Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos, 
                   const Vector3& n, const Object* target_obj,
-                  const Object* hit_light) {
+                  const Object* hit_light, bool specular_bounce) {
 
     Rgb Ld(0);
     for (auto const& ptr : scene.get_objects()) {  // BIG FIXME IF THERE ARE MANY OBJECTS RIP
@@ -133,7 +133,7 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos,
         const Material* light_mat = l->get_material(pos);
 
         // Dismiss if not light or taken into account in specific cases
-        if (light_mat->ke == Rgb(0) || l == hit_light) {
+        if (light_mat->ke == Rgb(0) || l == hit_light || specular_bounce) {
             continue;
         }
 
@@ -192,7 +192,8 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
         }
 
         // Direct lighting estimation
-        L += throughput * sample_lights(scene, ray_out, pos, n, obj, hit_light);
+        L += throughput * sample_lights(scene, ray_out, pos, n, obj, hit_light,
+                                        specular_bounce);
 
         // Sampling new direction and accumulate indirect lighting estimation
         Vector3 wi = mat->sample(ray_out.dir, n);
@@ -200,6 +201,7 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
 
         float pdf = mat->pdf(ray_out.dir, wi, n);
         Rgb f = mat->eval_bsdf(ray_out.dir, wi, n);
+        specular_bounce = mat->ks != 0;
         if (f == 0.f || pdf == 0.f)
             break;
         throughput *= f * wi.dot_product(n) / pdf;
@@ -223,7 +225,7 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
 void render_aux(Image &img, const Scene &scene, std::atomic<int>& progress, 
                 size_t j_start, size_t h, size_t w) {
 
-    size_t n_samples = 64;
+    size_t n_samples = 512;
     float inv_samples = 1 / (float) n_samples;
     for (size_t j = j_start; j < j_start + h; j++) {
         for (size_t i = 0; i < w; i++) {
