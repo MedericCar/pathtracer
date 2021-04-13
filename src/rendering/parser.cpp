@@ -44,6 +44,7 @@ std::vector<std::shared_ptr<Material>> load_materials(json j) {
         auto kd = mat.at("kd").get<std::array<float, 3>>();
         auto ks = mat.at("ks").get<std::array<float, 3>>();
         auto ke = mat.at("ke").get<std::array<float, 3>>();
+        auto kt = mat.at("kt").get<std::array<float, 3>>();
 
         float ns = mat.at("ns").get<float>();
         float ni = mat.at("ni").get<float>();
@@ -56,7 +57,8 @@ std::vector<std::shared_ptr<Material>> load_materials(json j) {
         } else if (mat.at("type").get<std::string>() == "specular") {
             materials.emplace_back(std::make_shared<SpecularMat>(
                 Rgb(ks),  // ks
-                ni  //ni
+                ni,  //ni
+                Rgb(kt)   // kt
             ));
         }
     }

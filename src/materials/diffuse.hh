@@ -14,7 +14,7 @@ class DiffuseMat : public Material
 
     public:
         DiffuseMat(Rgb _kd, Rgb _ke)
-         : Material(Rgb(0), _kd, Rgb(0), 0, _ke, 0)
+         : Material(Rgb(0), _kd, Rgb(0), 0, _ke, 0, Rgb(0))
         {}
 
         Vector3 sample(const Vector3& wo, const Vector3& n) const;

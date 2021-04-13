@@ -15,12 +15,14 @@ namespace isim {
         Rgb ks;  // specularity
         float ns;  // specular exponent
         Rgb ke;  // emissive
+        Rgb kt;  // transmittance
         float ni_t;  // index of refraction inside material
         float ni_i = 1.f;  // index of refraction outside material (air)
 
     public:
         Material();
-        Material(Rgb _ka , Rgb _kd, Rgb _ks, float _ns, Rgb _ke, float _ni);
+        Material(Rgb _ka , Rgb _kd, Rgb _ks, float _ns, Rgb _ke, float _ni,
+                 Rgb _kt);
 
         virtual Vector3 sample(const Vector3& wo, const Vector3& n) const = 0;
         
@@ -29,6 +31,9 @@ namespace isim {
 
         virtual float
         pdf(const Vector3& wo, const Vector3& wi, const Vector3& n) const = 0;
+
+        virtual Rgb sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
+                             float* pdf) const;
                         
     };
     

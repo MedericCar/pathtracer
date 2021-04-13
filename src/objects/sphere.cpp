@@ -8,8 +8,10 @@ namespace isim {
     Sphere::Sphere(std::shared_ptr<Material> _material, const std::string& _id, 
                    Vector3 _center, float _radius)
      : Object(_material, _id), center(_center), radius(_radius) {}
-    
+
+
     std::optional<Vector3> Sphere::is_intersect(const Ray& ray) const {
+
         Vector3 oc = center - ray.origin;
         float d_om = oc.dot_product(ray.dir);
         float d_cm_2 = oc.dot_product(oc) - d_om * d_om;
@@ -23,9 +25,9 @@ namespace isim {
         float t0 = d_om - d_im;
         float t1 = d_om + d_im;
 
-        if (t0 * t1 < 0) {
-            return std::nullopt;  // ray origin is in the sphere
-        }
+        //if (t0 * t1 < 0) {
+        //    return std::nullopt;  // ray origin is in the sphere
+        //}
 
         if (t0 > t1)
             std::swap(t0, t1);

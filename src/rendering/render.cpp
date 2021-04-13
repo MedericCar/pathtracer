@@ -133,7 +133,7 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos,
         const Material* light_mat = l->get_material(pos);
 
         // Dismiss if not light or taken into account in specific cases
-        if (light_mat->ke == Rgb(0) || l == hit_light || specular_bounce) {
+        if (light_mat->ke == Rgb(0) || l == hit_light) {
             continue;
         }
 
@@ -144,8 +144,12 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos,
         if (!nearest_obj.has_value() || nearest_obj.value().first != target_obj)
             continue;
 
-        Rgb f = target_obj->get_material(pos)->eval_bsdf(ray_out.dir,
-                                                         ray_in.dir * -1, n);
+        const Material* obj_mat = target_obj->get_material(pos);
+        if (obj_mat->ks != Rgb(0)) {  // Not to sample light for specular
+            continue;
+        }
+
+        Rgb f = obj_mat->eval_bsdf(ray_out.dir, ray_in.dir * -1, n);
         if (f == Rgb(0) || pdf == 0.f)
             continue;
         
@@ -157,7 +161,7 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos,
         float cos1 = light_n.dot_product(ray_in.dir);
         float cos2 = n.dot_product(ray_in.dir * -1);
 
-        Ld += f * cos1 * cos2 * 2 / (square_norm * pdf);
+        Ld += light_mat->ke * f * cos1 * cos2 / (square_norm * pdf);
     }
 
     return Ld;
@@ -168,11 +172,14 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
     Rgb throughput(1.0f);
     bool specular_bounce = false;
 
+    bool follow = false;
+
     for (int bounces = 0; ; bounces++) {
 
         auto nearest_obj = nearest_intersection(scene.get_objects(), ray_out);
         if (!nearest_obj.has_value() || bounces > MAX_DEPTH) {
             L += throughput * Rgb(0);
+            follow = false;
             break;
         }
 
@@ -181,6 +188,16 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
         Vector3 pos = nearest_obj.value().second;
         Vector3 n = obj->get_normal(pos);
         const Material* mat = obj->get_material(pos);
+
+        //if (obj->id == "sphere2" && bounces == 0) {
+        //    std::cout << "Let's follow the mofo\n";
+        //    follow = true;
+        //}
+
+        if (follow) {
+            //std::cout << "RAY MAH DUDE : " << ray_out.dir;
+            std::cout << "Pos : " << pos;
+        }
 
         // Intersection with emissive object : two exceptions for adding
         const Object* hit_light = nullptr;
@@ -196,27 +213,29 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
                                         specular_bounce);
 
         // Sampling new direction and accumulate indirect lighting estimation
-        Vector3 wi = mat->sample(ray_out.dir, n);
-        Ray sample_ray = { .dir = wi, .origin = pos + wi * 0.0001 }; 
-
-        float pdf = mat->pdf(ray_out.dir, wi, n);
-        Rgb f = mat->eval_bsdf(ray_out.dir, wi, n);
-        specular_bounce = mat->ks != 0;
+        Vector3 wi;
+        float pdf;
+        Rgb f = mat->sample_f(ray_out.dir * -1, n, &wi, &pdf);  // switch wo direction for computations
+        specular_bounce = (mat->ks != Rgb(0));  // FIXME
         if (f == 0.f || pdf == 0.f)
             break;
-        throughput *= f * wi.dot_product(n) / pdf;
+        throughput *= f * abs(wi.dot_product(n)) / pdf;
+        //throughput *= f  / pdf;
 
-        ray_out = sample_ray;
+        if (wi.dot_product(n) < 0) {
+            ray_out = { .dir = wi.normalize(), .origin = pos - n * 0.0001 };
+        } else {
+            ray_out = { .dir = wi.normalize(), .origin = pos + n * 0.0001 };
+        }
         
         // Russian roulette to eliminate some paths
-        float p = std::max({throughput.r, throughput.g, throughput.b});
-        if (bounces > 5) {
-            if (random_float(0, 1) > p) {
-                break;
-            }
-            throughput *= 1 / (1 - p); // FIXME might be just 1/p
-        } 
-
+        //float p = std::max({throughput.r, throughput.g, throughput.b});
+        //if (bounces > 5) {
+        //    if (random_float(0, 1) > p) {
+        //        break;
+        //    }
+        //    throughput *= 1 / (1 - p); 
+        //}
     }
 
     return L.clamp(0.f, 1.f);
@@ -225,7 +244,7 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
 void render_aux(Image &img, const Scene &scene, std::atomic<int>& progress, 
                 size_t j_start, size_t h, size_t w) {
 
-    size_t n_samples = 512;
+    size_t n_samples = 2048;
     float inv_samples = 1 / (float) n_samples;
     for (size_t j = j_start; j < j_start + h; j++) {
         for (size_t i = 0; i < w; i++) {

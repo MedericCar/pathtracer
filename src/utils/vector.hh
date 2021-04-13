@@ -52,6 +52,10 @@ namespace isim {
                         v1.get_z() * v2.get_x() - v1.get_x() * v2.get_z(),
                         v1.get_x() * v2.get_y() - v1.get_y() * v2.get_x());
     }
+
+    inline bool operator==(const Vector3& v1, const Vector3& v2) {
+        return v1.x == v2.x && v1.y == v2.y && v1.z == v2.z;
+    }
     
     std::ostream& operator<<(std::ostream &out, Vector3 &vect);
     std::ostream& operator<<(std::ostream &out, const Vector3 &vect);
