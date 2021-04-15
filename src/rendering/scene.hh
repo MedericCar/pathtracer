@@ -4,6 +4,7 @@
 
 #include "../objects/object.hh"
 #include "../objects/light.hh"
+#include "../accelerator/bvh.hh"
 #include "camera.hh"
 
 namespace isim {
@@ -13,6 +14,7 @@ namespace isim {
     private:
         std::vector<std::unique_ptr<Object>> objects;
         std::vector<std::unique_ptr<Light>> lights;
+        BVHNode* root_volume;
         Camera camera;
 
     public:

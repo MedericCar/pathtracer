@@ -7,7 +7,12 @@ namespace isim {
 
     Sphere::Sphere(std::shared_ptr<Material> _material, const std::string& _id, 
                    Vector3 _center, float _radius)
-     : Object(_material, _id), center(_center), radius(_radius) {}
+     : Object(_material, _id), center(_center), radius(_radius) {
+         box = new AABB(
+             center - Vector3(radius, radius, radius),
+             center + Vector3(radius, radius, radius)
+         );
+     }
 
 
     std::optional<Vector3> Sphere::is_intersect(const Ray& ray) const {

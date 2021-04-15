@@ -5,6 +5,7 @@
 
 #include "../materials/material.hh"
 #include "../rendering/ray.hh"
+#include "../accelerator/aabb.hh"
 
 namespace isim {
 
@@ -15,6 +16,7 @@ namespace isim {
 
     protected :
         std::shared_ptr<Material> material;
+        AABB* box = nullptr;
 
     public:
         Object(std::shared_ptr<Material> _material, const std::string& _id);
@@ -24,12 +26,17 @@ namespace isim {
 
         virtual inline Vector3
         get_normal(const Vector3& pos) const = 0;
+        
+        virtual Ray sample(Vector3 pos, float& pdf) const;
 
         inline const Material* get_material(const Vector3& pos) const {
             return material.get();
         }
 
-        virtual Ray sample(Vector3 pos, float& pdf) const;
+        inline virtual const AABB* get_bounding_box() const { 
+            return box;
+        };
+
 
     };
 

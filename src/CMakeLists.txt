@@ -1,4 +1,6 @@
-set(SRC_RAYTRACER "materials/diffuse.cpp"
+set(SRC_RAYTRACER "accelerator/aabb.cpp"
+                  "accelerator/bvh.cpp"
+                  "materials/diffuse.cpp"
                   "materials/material.cpp"
                   "materials/microfacet.cpp"
                   "materials/specular.cpp"
@@ -18,7 +20,8 @@ set(SRC_RAYTRACER "materials/diffuse.cpp"
 
 add_library(raytracer ${SRC_RAYTRACER})
 
-target_include_directories(raytracer PUBLIC "bsdf"
+target_include_directories(raytracer PUBLIC "accelerator"
+                                            "bsdf"
                                             "materials"
                                             "objects"
                                             "rendering"

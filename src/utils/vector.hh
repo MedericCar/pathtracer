@@ -20,6 +20,21 @@ namespace isim {
         inline float get_y() const { return y; }
         inline float get_z() const { return z; }
 
+        inline float operator[](int i) const {
+            switch (i)
+            {
+            case 0:
+                return x;
+            case 1:
+                return y;
+            case 2:
+                return z;
+            default:
+                std::cerr << "Index out of bounds: " << i << "\n";
+                exit(1);
+            }
+        }
+
         inline Vector3 operator*(float l) const { 
             return Vector3(x*l, y*l, z*l);
         }

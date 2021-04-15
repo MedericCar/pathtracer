@@ -3,6 +3,7 @@
 #include <thread>
 #include <atomic>
 
+#include "../accelerator/bvh.hh"
 #include "../utils/random.hh"
 #include "render.hh"
 
@@ -10,7 +11,7 @@ namespace isim {
 
 std::optional<std::pair<Object const*, Vector3>> 
 nearest_intersection(const std::vector<std::unique_ptr<Object>>& objects,
-                            const Ray &ray) {
+                     const Ray &ray) {
 
     std::vector<std::pair<Object const*, Vector3>> encountered;
     for (auto const& p : objects) {
@@ -35,6 +36,7 @@ nearest_intersection(const std::vector<std::unique_ptr<Object>>& objects,
 
     return std::make_optional(*min);
 }
+
 
 Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
     Rgb color = Rgb(0); 
@@ -168,14 +170,11 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
     Rgb throughput(1.0f);
     bool specular_bounce = false;
 
-    bool follow = false;
-
     for (int bounces = 0; ; bounces++) {
 
         auto nearest_obj = nearest_intersection(scene.get_objects(), ray_out);
         if (!nearest_obj.has_value() || bounces > MAX_DEPTH) {
             L += throughput * Rgb(0.0f);
-            follow = false;
             break;
         }
 
@@ -184,16 +183,6 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
         Vector3 pos = nearest_obj.value().second;
         Vector3 n = obj->get_normal(pos);
         const Material* mat = obj->get_material(pos);
-
-        //if (obj->id == "sphere2" && bounces == 0) {
-        //    std::cout << "Let's follow the mofo\n";
-        //    follow = true;
-        //}
-
-        if (follow) {
-            //std::cout << "RAY MAH DUDE : " << ray_out.dir;
-            std::cout << "Pos : " << pos;
-        }
 
         // Intersection with emissive object : two exceptions for adding
         const Object* hit_light = nullptr;
@@ -216,8 +205,6 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
         if (f == Rgb(0) || pdf == 0.f)
             break;
         throughput *= f * abs(wi.dot_product(n)) / pdf;
-        //throughput *= f * wi.dot_product(n) / pdf;
-        //throughput *= f / pdf;
 
         if (wi.dot_product(n) < 0) {
             ray_out = { .dir = wi.normalize(), .origin = pos - n * 0.0001 };
@@ -226,13 +213,13 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
         }
         
         // Russian roulette to eliminate some paths
-        //float p = std::max({throughput.r, throughput.g, throughput.b});
-        //if (bounces > 5) {
-        //    if (random_float(0, 1) > p) {
-        //        break;
-        //    }
-        //    throughput *= 1 / (1 - p); 
-        //}
+        float p = std::max({throughput.r, throughput.g, throughput.b});
+        if (bounces > 5) {
+            if (random_float(0, 1) > p) {
+                break;
+            }
+            throughput *= 1 / p; 
+        }
     }
 
     return L.clamp(0.f, 1.f);
@@ -253,7 +240,6 @@ void render_aux(Image &img, const Scene &scene, std::atomic<int>& progress,
                 color += path_trace_pbr(scene, view_ray);
                 //color += radiance(scene, view_ray, 0);
             }
-
             color /= n_samples;
             
             // Whitted ray tracing

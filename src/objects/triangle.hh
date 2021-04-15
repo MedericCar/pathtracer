@@ -14,6 +14,7 @@ namespace isim {
         Vector3 edge2;
         Vector3 normal;
         float inv_area;
+        
 
     public:
         Triangle(std::shared_ptr<Material> _material, const std::string& id,

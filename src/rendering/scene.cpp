@@ -11,7 +11,9 @@ namespace isim {
       : camera(_camera),
         objects(std::move(_objects)),
         lights(std::move(_lights))
-    {}
+    {
+        root_volume = construct_tree(objects, 0, objects.size());
+    }
     
     const Camera& Scene::get_camera() const {
         return camera;

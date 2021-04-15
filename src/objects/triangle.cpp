@@ -6,6 +6,22 @@
 
 namespace isim {
 
+Vector3 get_minimum(const Vector3 pt0, const Vector3 pt1, const Vector3 pt2) {
+    return Vector3(
+        std::min(pt0.x, std::min(pt1.x, pt2.x)),
+        std::min(pt0.y, std::min(pt1.y, pt2.y)),
+        std::min(pt0.z, std::min(pt1.z, pt2.z))
+    );
+}
+
+Vector3 get_maximum(const Vector3 pt0, const Vector3 pt1, const Vector3 pt2) {
+    return Vector3(
+        std::max(pt0.x, std::max(pt1.x, pt2.x)),
+        std::max(pt0.y, std::max(pt1.y, pt2.y)),
+        std::max(pt0.z, std::max(pt1.z, pt2.z))
+    );
+}
+
 Triangle::Triangle(std::shared_ptr<Material> _material,
                     const std::string& _id,
                     const Vector3& _pt0, 
@@ -17,6 +33,10 @@ Triangle::Triangle(std::shared_ptr<Material> _material,
     normal = cross_product(edge1, edge2);
     inv_area = 2 / normal.euclidean_norm();
     normal = normal.normalize();
+
+    Vector3 pmin = get_minimum(pt0, pt1, pt2); 
+    Vector3 pmax= get_maximum(pt0, pt1, pt2); 
+    box = new AABB(pmin, pmax);
 }
 
 // Möller-Trumbore algorithm : 
