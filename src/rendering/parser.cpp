@@ -10,6 +10,7 @@
 #include "../objects/sphere.hh"
 #include "../objects/triangle.hh"
 #include "../materials/diffuse.hh"
+#include "../materials/microfacet.hh"
 #include "../materials/specular.hh"
 
 
@@ -45,20 +46,29 @@ std::vector<std::shared_ptr<Material>> load_materials(json j) {
         auto ks = mat.at("ks").get<std::array<float, 3>>();
         auto ke = mat.at("ke").get<std::array<float, 3>>();
         auto kt = mat.at("kt").get<std::array<float, 3>>();
+        auto f0 = mat.at("f0").get<std::array<float, 3>>();
 
         float ns = mat.at("ns").get<float>();
         float ni = mat.at("ni").get<float>();
+        float roughness = mat.at("roughness").get<float>();
         
         if (mat.at("type").get<std::string>() == "uniform") {
             materials.emplace_back(std::make_shared<DiffuseMat>(
-                Rgb(kd),   // ke
-                Rgb(ke)   // kd
+                Rgb(kd),  
+                Rgb(ke)  
             ));
         } else if (mat.at("type").get<std::string>() == "specular") {
             materials.emplace_back(std::make_shared<SpecularMat>(
-                Rgb(ks),  // ks
-                ni,  //ni
-                Rgb(kt)   // kt
+                Rgb(ks), 
+                ni,  
+                Rgb(kt) 
+            ));
+        } else if (mat.at("type").get<std::string>() == "microfacets") {
+            materials.emplace_back(std::make_shared<MicrofacetMat>(
+                Rgb(kd), 
+                Rgb(ks),
+                roughness,
+                Rgb(f0) 
             ));
         }
     }

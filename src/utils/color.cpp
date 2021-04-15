@@ -45,6 +45,20 @@ Rgb& Rgb::operator+=(const Rgb &c) {
     return *this;
 } 
 
+Rgb Rgb::operator-(const Rgb &c) const {
+    float new_r = r - c.r;
+    float new_g = g - c.g;
+    float new_b = b - c.b;
+    return Rgb(new_r, new_g, new_b);
+} 
+
+Rgb& Rgb::operator-=(const Rgb &c) {
+    r = r - c.r;
+    g = g - c.g;
+    b = b - c.b;
+    return *this;
+} 
+
 Rgb Rgb::operator*(float k) const {
     float new_r = r * k;
     float new_g = g * k;

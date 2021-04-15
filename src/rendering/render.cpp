@@ -37,13 +37,13 @@ nearest_intersection(const std::vector<std::unique_ptr<Object>>& objects,
 }
 
 Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
-    Rgb color = Rgb(10/255); 
+    Rgb color = Rgb(0); 
     auto nearest_obj = nearest_intersection(scene.get_objects(), ray);
 
     // Set background
     if (!nearest_obj.has_value() && depth <= 1)
-        return Rgb(0.66, 0.79, 1);
-        //return color;
+        //return Rgb(0.66, 0.79, 1);
+        return color;
 
     // Recursion stopping case
     if (!nearest_obj.has_value() || depth == MAX_DEPTH)
@@ -59,13 +59,9 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
         Ray light_ray = p->get_ray(pos);
 
         // Shadows
-        auto light_inter = nearest_intersection(scene.get_objects(), 
-                                                     light_ray);
+        auto light_inter = nearest_intersection(scene.get_objects(), light_ray);
         if (!light_inter || light_inter.value().first != obj)
             continue;
-
-        // Ambient component
-        color = mat->ka * mat->ke;
 
         // Diffuse component
         Vector3 l = light_ray.dir * -1;
@@ -87,7 +83,7 @@ Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
     float k = (color.r + color.g + color.b) / 3;
     color += cast_ray(scene, reflect_ray, depth + 1) * mat->ks * k;
 
-    return color;
+    return color.clamp(0.f, 1.f);
 }
 
 Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
@@ -149,7 +145,7 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos,
             continue;
         }
 
-        Rgb f = obj_mat->eval_bsdf(ray_out.dir, ray_in.dir * -1, n);
+        Rgb f = obj_mat->eval_bsdf(ray_out.dir * -1, ray_in.dir * -1, n);
         if (f == Rgb(0) || pdf == 0.f)
             continue;
         
@@ -158,8 +154,8 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos,
         square_norm *= square_norm;
 
         Vector3 light_n = l->get_normal(ray_in.origin);  // FIXME could save beforehand
-        float cos1 = light_n.dot_product(ray_in.dir);
-        float cos2 = n.dot_product(ray_in.dir * -1);
+        float cos1 = light_n.dot_product(ray_in.dir * -1);
+        float cos2 = n.dot_product(ray_in.dir);
 
         Ld += light_mat->ke * f * cos1 * cos2 / (square_norm * pdf);
     }
@@ -178,7 +174,7 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
 
         auto nearest_obj = nearest_intersection(scene.get_objects(), ray_out);
         if (!nearest_obj.has_value() || bounces > MAX_DEPTH) {
-            L += throughput * Rgb(0);
+            L += throughput * Rgb(0.0f);
             follow = false;
             break;
         }
@@ -217,10 +213,11 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
         float pdf;
         Rgb f = mat->sample_f(ray_out.dir * -1, n, &wi, &pdf);  // switch wo direction for computations
         specular_bounce = (mat->ks != Rgb(0));  // FIXME
-        if (f == 0.f || pdf == 0.f)
+        if (f == Rgb(0) || pdf == 0.f)
             break;
         throughput *= f * abs(wi.dot_product(n)) / pdf;
-        //throughput *= f  / pdf;
+        //throughput *= f * wi.dot_product(n) / pdf;
+        //throughput *= f / pdf;
 
         if (wi.dot_product(n) < 0) {
             ray_out = { .dir = wi.normalize(), .origin = pos - n * 0.0001 };
@@ -244,7 +241,7 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
 void render_aux(Image &img, const Scene &scene, std::atomic<int>& progress, 
                 size_t j_start, size_t h, size_t w) {
 
-    size_t n_samples = 2048;
+    size_t n_samples = 64;
     float inv_samples = 1 / (float) n_samples;
     for (size_t j = j_start; j < j_start + h; j++) {
         for (size_t i = 0; i < w; i++) {

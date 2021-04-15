@@ -14,7 +14,7 @@ class SpecularMat : public Material
 
     public:
         SpecularMat(Rgb _ks, float _ni, Rgb _kt)
-         : Material(Rgb(0), Rgb(0), _ks, 1, Rgb(0), _ni, _kt)
+         : Material(Rgb(0), Rgb(0), _ks, 1, Rgb(0), _ni, _kt, 0)
         {}
 
         Rgb sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,

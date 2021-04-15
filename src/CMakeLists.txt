@@ -1,5 +1,6 @@
 set(SRC_RAYTRACER "materials/diffuse.cpp"
                   "materials/material.cpp"
+                  "materials/microfacet.cpp"
                   "materials/specular.cpp"
                   "objects/object.cpp"
                   "objects/point_light.cpp"

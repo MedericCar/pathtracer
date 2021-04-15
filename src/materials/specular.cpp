@@ -79,7 +79,7 @@ Rgb SpecularMat::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
         *wi =  n * 2 * cos_theta_o - wo;
         float cos_theta_i = wi->dot_product(n);
         *pdf = F;
-        return ks * F / std::abs(cos_theta_i);  // multiply by F bc : theta_o = thera_r
+        return ks * F / std::abs(cos_theta_i);
 
     } else {
 
@@ -98,9 +98,11 @@ Rgb SpecularMat::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
         }
 
         Rgb ft = kt * (1 - F);
+        //float cos_theta_i = wi->dot_product(n);
+        //Rgb ft = kt * (1 - fr_dielectric(cos_theta_i, eta_i, eta_t));
 
         // TODO : account for non-symmetry when estimating from lights (BDPT)
-        // ft /= (ni_i * ni_i) / (ni_t * ni_t);
+        //ft /= (ni_i * ni_i) / (ni_t * ni_t);
 
         *pdf = 1 - F;
 
@@ -108,5 +110,57 @@ Rgb SpecularMat::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
         return ft / std::abs(cos_theta_i);
     }
 }
+
+//Rgb SpecularMat::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
+//                          float* pdf) const {                              
+//
+//    
+//    float cos_theta_i = n.dot_product(wo);
+//    Vector3 normal = n;
+//    float eta_i = ni_i;
+//    float eta_t = ni_t;
+//    bool into = (cos_theta_i > 0);
+//    if (!into) {
+//        std::swap(eta_i, eta_t);
+//        normal = normal * -1;
+//        cos_theta_i *= -1;
+//    }
+//
+//    Vector3 reflection =  normal * 2 * normal.dot_product(wo) - wo;
+//    float eta = eta_i / eta_t;
+//    float sin2_theta_i = 1 - cos_theta_i * cos_theta_i;
+//    float sin2_theta_t = eta * eta * sin2_theta_i;
+//    float cos2_theta_t = 1 - sin2_theta_t;
+//    float cos_theta_t = std::sqrt(cos2_theta_t);
+//
+//    if (sin2_theta_t > 1.f) {
+//        *pdf = 1;
+//        *wi = reflection;
+//        return ks / std::abs(cos_theta_t);
+//    }
+//
+//    float r_par = ((eta_t * cos_theta_i) - (eta_i * cos_theta_t)) /
+//                  ((eta_t * cos_theta_i) + (eta_i * cos_theta_t));
+//    float r_per = ((eta_i * cos_theta_i) - (eta_t * cos_theta_t)) /
+//                  ((eta_i * cos_theta_i) + (eta_t * cos_theta_t));
+//    float F = (r_par * r_par + r_per * r_per) / 2;
+//
+//    float u = random_float(0.f, 1.f);
+//    if (u < F) {
+//
+//        *wi = reflection;
+//        *pdf = F;
+//        return ks * F / std::abs(cos_theta_i);  
+//
+//    } else {
+//
+//        if (!refract(wo, normal, eta, wi)) {
+//            return Rgb(0);
+//        }
+//
+//        *pdf = 1 - F;
+//        return kt * (1 - F) / std::abs(cos_theta_i);
+//    }
+//}
 
 }

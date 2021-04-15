@@ -23,6 +23,9 @@ namespace isim {
         
         Rgb operator+(const Rgb& c) const;
         Rgb& operator+=(const Rgb& c);
+
+        Rgb operator-(const Rgb& c) const;
+        Rgb& operator-=(const Rgb& c);
         
         Rgb operator*(float k) const;
         Rgb& operator*=(float k);
