@@ -32,6 +32,8 @@ namespace isim {
 
         void summary();
 
+        std::optional<std::pair<Object*, Vector3>> hit(const Ray& ray) const;
+
     };
 
 }

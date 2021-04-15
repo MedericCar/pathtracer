@@ -29,7 +29,7 @@ namespace isim {
     };
 
     BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,                           
-                            size_t start, size_t end);
+                            int start, int end);
     
     std::optional<std::pair<Object*, Vector3>> 
     nearest_intersection(std::vector<Object*> objects, const Ray &ray);

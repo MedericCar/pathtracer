@@ -49,13 +49,13 @@ BVHNode::BVHNode(AABB _box, BVHNode* _left, BVHNode* _right)
 {}
 
 BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,                           
-                        size_t start, size_t end) {
+                        int start, int end) {
 
-    size_t len = end - start;
+    int len = end - start;
     if (len <= OBJECTS_LIM) {
         std::vector<Object*> aggregate;
         auto it = objects.begin() + start;
-        while (it < objects.begin() + end) {
+        while (it != objects.begin() + end) {
             aggregate.push_back(it->get());
             it++;
         }
@@ -70,7 +70,7 @@ BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,
                     < b->get_bounding_box()->pmin[axis]);
     });
 
-    size_t mid = len / 2;
+    int mid = start + (end - start) / 2;
     BVHNode* left = construct_tree(objects, start, mid);
     BVHNode* right = construct_tree(objects, mid, end);
     AABB box = surrounding_box(left->box, right->box);
@@ -114,19 +114,29 @@ BVHNode::hit(const Ray& ray, float t_min, float t_max) {
 
     if (!box.hit(ray, t_min, t_max))
         return std::nullopt;
-
-    auto left_hit = left ? left->hit(ray, t_min, t_max) : std::nullopt;
-    auto right_hit = right ? right->hit(ray, t_min, t_max) : std::nullopt;
+    
 
     std::optional<std::pair<Object*, Vector3>> res = std::nullopt;
+
+    std::optional<std::pair<Object*, Vector3>> left_hit;
     float t0 = t_min;
     if (left && (left_hit = left->hit(ray, t0, t_max))) {
-        res = left_hit.value();
+        res = left_hit;
     }
 
     float t1 = t_min;
-    if (right && (right_hit = right->hit(ray, t0, t_max)) && t1 < t0) {
-        res = right_hit.value();
+    std::optional<std::pair<Object*, Vector3>> right_hit;
+    if (right && (right_hit = right->hit(ray, t1, t_max))) {
+        if (!res)
+            res = right_hit;
+        else {
+            // FIXME : this is awful
+            if ((res.value().second - ray.origin).euclidean_norm()
+                > (right_hit.value().second - ray.origin).euclidean_norm()) {
+                
+                res = right_hit.value();
+            }
+        }
     }
 
     return res;

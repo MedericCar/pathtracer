@@ -39,5 +39,10 @@ namespace isim {
         std::cout << "N objects : " << objects.size() << "\n";
     }
 
+    std::optional<std::pair<Object*, Vector3>> 
+    Scene::hit(const Ray& ray) const {
+        return root_volume->hit(ray, 0.001, INFINITY);
+    }
+
 }
 

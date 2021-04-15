@@ -138,7 +138,7 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos,
         float pdf = 0.0f;
         Ray ray_in = l->sample(pos, pdf);
 
-        auto nearest_obj = nearest_intersection(scene.get_objects(), ray_in);
+        auto nearest_obj = scene.hit(ray_in);
         if (!nearest_obj.has_value() || nearest_obj.value().first != target_obj)
             continue;
 
@@ -172,7 +172,8 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
 
     for (int bounces = 0; ; bounces++) {
 
-        auto nearest_obj = nearest_intersection(scene.get_objects(), ray_out);
+        //auto nearest_obj = nearest_intersection(scene.get_objects(), ray_out);
+        auto nearest_obj = scene.hit(ray_out);
         if (!nearest_obj.has_value() || bounces > MAX_DEPTH) {
             L += throughput * Rgb(0.0f);
             break;
@@ -196,6 +197,7 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
         // Direct lighting estimation
         L += throughput * sample_lights(scene, ray_out, pos, n, obj, hit_light,
                                         specular_bounce);
+        //std::cout << L;
 
         // Sampling new direction and accumulate indirect lighting estimation
         Vector3 wi;

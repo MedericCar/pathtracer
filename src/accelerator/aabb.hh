@@ -8,8 +8,8 @@ namespace isim {
     class AABB {
         
         public:
-            AABB(const Vector3& pmin, const Vector3& pmax)
-             : pmin(pmin), pmax(pmax)
+            AABB(const Vector3& _pmin, const Vector3& _pmax)
+             : pmin(_pmin), pmax(_pmax)
             {}
 
             // Andrew Kensler's intersection variant
