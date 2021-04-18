@@ -10,28 +10,29 @@
 
 namespace isim {
 
-    class BVHNode {
+class BVHNode {
 
-        public:
-            // Leaf
-            BVHNode(std::vector<Object*> _objects);
+  public:
+    // Leaf
+    BVHNode(std::vector<Object*> objects);
 
-            // Internal node
-            BVHNode(AABB _box, BVHNode* _left, BVHNode* _right);
+    // Internal node
+    BVHNode(AABB box, BVHNode* left, BVHNode* right);
 
-            std::optional<std::pair<Object*, Vector3>> 
-            hit(const Ray& ray, float t_min, float t_max);
+    std::optional<std::pair<Object*, Vector3>> hit(const Ray& ray, float t_min,
+                                                   float t_max);
 
-            std::vector<Object*> aggregate;
-            BVHNode* left = nullptr;
-            BVHNode* right = nullptr;
-            AABB box;
-    };
+    std::vector<Object*> aggregate_;
+    BVHNode* left_ = nullptr;
+    BVHNode* right_ = nullptr;
+    AABB box_;
 
-    BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,                           
-                            int start, int end);
-    
-    std::optional<std::pair<Object*, Vector3>> 
-    nearest_intersection(std::vector<Object*> objects, const Ray &ray);
+};
+
+BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,                           
+    int start, int end);
+
+std::optional<std::pair<Object*, Vector3>> nearest_intersection(
+    std::vector<Object*> objects, const Ray &ray);
     
 }

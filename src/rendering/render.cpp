@@ -59,7 +59,7 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos,
             continue;
 
         const Material* obj_mat = target_obj->get_material(pos);
-        if (obj_mat->ks != Rgb(0)) {  // Not to sample light for specular
+        if (obj_mat->ks_ != Rgb(0)) {  // Not to sample light for specular
             continue;
         }
 
@@ -75,7 +75,7 @@ Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos,
         float cos1 = light_n.dot_product(ray_in.dir * -1);
         float cos2 = n.dot_product(ray_in.dir);
 
-        Ld += light_mat->ke * f * cos1 * cos2 / (square_norm * pdf);
+        Ld += light_mat->ke_ * f * cos1 * cos2 / (square_norm * pdf);
     }
 
     return Ld;
@@ -103,10 +103,10 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
 
         // Intersection with emissive object : two exceptions for adding
         const Object* hit_light = nullptr;
-        if (mat->ke != Rgb(0)) {
+        if (mat->ke_ != Rgb(0)) {
             hit_light = obj;
             if (bounces == 0 || specular_bounce) {
-                L += mat->ke * throughput;  // FIXME : should be Light->Le()
+                L += mat->ke_ * throughput;  // FIXME : should be Light->Le()
             }
         }
 
@@ -118,7 +118,7 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
         Vector3 wi;
         float pdf;
         Rgb f = mat->sample_f(ray_out.dir * -1, n, &wi, &pdf);  // switch wo direction for computations
-        specular_bounce = (mat->ks != Rgb(0));  // FIXME
+        specular_bounce = (mat->ks_ != Rgb(0));  // FIXME
         if (f == Rgb(0) || pdf == 0.f)
             break;
         throughput *= f * abs(wi.dot_product(n)) / pdf;
@@ -145,7 +145,7 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
 void render_aux(Image &img, const Scene &scene, std::atomic<int>& progress, 
                 size_t j_start, size_t h, size_t w) {
 
-    size_t n_samples = 64;
+    size_t n_samples = 128;
     float inv_samples = 1 / (float) n_samples;
     for (size_t j = j_start; j < j_start + h; j++) {
         for (size_t i = 0; i < w; i++) {

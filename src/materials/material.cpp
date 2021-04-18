@@ -1,33 +1,31 @@
-#include "material.hh"
 #include "../utils/random.hh"
+#include "material.hh"
 
 namespace isim {
 
 Material::Material() {
-    ka = Rgb(0);
-    kd = Rgb(0);
-    ks = Rgb(0);
-    ns = 0;
-    ke = Rgb(0);
-    ni_t = 0;
-    ni_i = 0;
-    kt = Rgb(0);
+    ka_ = Rgb(0);
+    kd_ = Rgb(0);
+    ks_ = Rgb(0);
+    ns_ = 0;
+    ke_ = Rgb(0);
+    ni_t_ = 0;
+    ni_i_ = 0;
+    kt_ = Rgb(0);
 }
 
 Material::Material(Rgb _ka , Rgb _kd, Rgb _ks, float _ns, Rgb _ke, float _ni,
                    Rgb _kt, float _roughness) 
-  : ka(_ka),
-    kd(_kd),
-    ks(_ks),
-    ns(_ns),
-    ke(_ke),
-    ni_t(_ni),
-    kt(_kt), 
-    roughness(_roughness)
-{}
+    : ka_(_ka),
+      kd_(_kd),
+      ks_(_ks),
+      ns_(_ns),
+      ke_(_ke),
+      ni_t_(_ni),
+      kt_(_kt), 
+      roughness_(_roughness) {}
 
-void createCoordinateSystem(const Vector3 &N, Vector3 &nt, Vector3 &nb) 
-{ 
+void local_basis(const Vector3 &N, Vector3 &nt, Vector3 &nb) { 
     if (std::fabs(N.get_x()) > std::fabs(N.get_y())) {
         nt = Vector3(N.get_z(), 0, -N.get_x()).normalize();
     }
@@ -50,7 +48,7 @@ Vector3 uniform_sample_hemisphere(const Vector3& n) {
     Vector3 dir(x, u, z);
 
     Vector3 nt, nb;
-    createCoordinateSystem(n, nt, nb);
+    local_basis(n, nt, nb);
 
     Vector3 world_dir( 
         dir.x * nb.x + dir.y * n.x + dir.z * nt.x, 
@@ -67,7 +65,7 @@ Vector3 Material::sample(const Vector3& wo, const Vector3& n) const {
 
 float Material::pdf(const Vector3& wo, const Vector3& wi,
                        const Vector3& n) const {
-    return pdf_constant;
+    return pdf_constant_;
 }
 
 Rgb Material::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
@@ -76,6 +74,6 @@ Rgb Material::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
     *wi = sample(wo, n);
     *pdf = this->pdf(wo, *wi, n);
     return eval_bsdf(wo, *wi, n);
-
 }
+
 }

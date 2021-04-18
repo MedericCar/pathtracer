@@ -1,17 +1,16 @@
 #include <fstream>
-#include <nlohmann/json.hpp>
 #include <memory>
+#include <nlohmann/json.hpp>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
-#include "parser.hh"
-#include "../objects/point_light.hh"
-#include "../objects/sphere.hh"
-#include "../objects/triangle.hh"
 #include "../materials/diffuse.hh"
 #include "../materials/microfacet.hh"
 #include "../materials/specular.hh"
+#include "../objects/sphere.hh"
+#include "../objects/triangle.hh"
+#include "parser.hh"
 
 
 using json = nlohmann::json;
@@ -197,7 +196,7 @@ Scene* load_scene(const std::string& filename) {
     std::vector<const Object*> lights; 
     for (const auto& p : objects) {
         const Object* obj = p.get();
-        if (obj->material->ke != Rgb(0)) {
+        if (obj->material->ke_ != Rgb(0)) {
             lights.push_back(obj);
         }
     }

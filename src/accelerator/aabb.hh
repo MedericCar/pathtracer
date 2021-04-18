@@ -8,15 +8,15 @@ namespace isim {
 class AABB {
 
   public:
-    AABB(const Vector3& _pmin, const Vector3& _pmax)
-        : pmin(_pmin), pmax(_pmax) {}
+    AABB(const Vector3& pmin, const Vector3& pmax)
+        : pmin_(pmin), pmax_(pmax) {}
 
     // Andrew Kensler's intersection variant
     inline bool hit(const Ray& ray, float& tmin, float& tmax) const {
       for (int a = 0; a < 3; a++) {
           float invD = 1.f / ray.dir[a];
-          float t0 = (pmin[a] - ray.origin[a]) * invD;
-          float t1 = (pmax[a] - ray.origin[a]) * invD;
+          float t0 = (pmin_[a] - ray.origin[a]) * invD;
+          float t1 = (pmax_[a] - ray.origin[a]) * invD;
           if (invD < 0.f) {
               std::swap(t0, t1);
           }
@@ -32,8 +32,8 @@ class AABB {
       return true;
     }
     
-    Vector3 pmin;
-    Vector3 pmax;
+    Vector3 pmin_;
+    Vector3 pmax_;
 
 };
 

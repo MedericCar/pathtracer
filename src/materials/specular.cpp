@@ -4,38 +4,11 @@
 #include "specular.hh"
 
 namespace isim {
-
-float fr_dielectric(float cos_theta_i, float eta_i, float eta_t) {
-    cos_theta_i = std::clamp(cos_theta_i, -1.0f, 1.0f);
-
-    // Swap indices and sign of cos if ray is in the medium
-    if (cos_theta_i <= 0.f) {
-        std::swap(eta_i, eta_t);
-        cos_theta_i = std::abs(cos_theta_i);
-    }
-
-    float sin_theta_i = std::sqrt(std::max(0.f, 1 - cos_theta_i * cos_theta_i));
-    float sin_theta_t = eta_i / eta_t * sin_theta_i;
-    
-    // Total reflection
-    if (sin_theta_i >= 1.f) {
-        return 1.f;
-    }
-
-    float cos_theta_t = std::sqrt(std::max(0.f, 1 - sin_theta_t * sin_theta_t));
-
-    // Fresnel reflectance formulae for dielectrics : parallel and perpendicular
-    // polarizations
-    float r_par = ((eta_t * cos_theta_i) - (eta_i * cos_theta_t)) /
-                  ((eta_t * cos_theta_i) + (eta_i * cos_theta_t));
-    float r_per = ((eta_i * cos_theta_i) - (eta_t * cos_theta_t)) /
-                  ((eta_i * cos_theta_i) + (eta_t * cos_theta_t));
-
-    return (r_par * r_par + r_per * r_per) / 2;
-}
         
-Vector3 
-SpecularMat::sample(const Vector3& wo, const Vector3& n) const {
+// The default material methods are not implemented as the BRDF is a delta
+// distribution. It is meaningless to sample it like the other.
+
+Vector3 SpecularMat::sample(const Vector3& wo, const Vector3& n) const {
     std::cerr << "Not implemented\n";
     exit(1);
 }
@@ -52,115 +25,63 @@ float SpecularMat::pdf(const Vector3& wo, const Vector3& wi,
     exit(1);
 }
 
-bool refract(const Vector3& wi, const Vector3& n, float eta, Vector3* wt) {
-    float cos_theta_i = wi.dot_product(n);
-    float sin2_theta_i = std::max(0.f, 1 - cos_theta_i * cos_theta_i);
-    float sin2_theta_t = eta * eta * sin2_theta_i;
+float fr_dielectric(float cos_theta_i, float cos_theta_t, float eta_i,
+                    float eta_t) {
 
-    // Total reflection
-    if (sin2_theta_t >= 1) {
-        return false;
-    }
+  // Fresnel reflectance formulae for dielectrics : parallel and perpendicular
+  // polarizations
+  float r_par = ((eta_t * cos_theta_i) - (eta_i * cos_theta_t)) /
+                ((eta_t * cos_theta_i) + (eta_i * cos_theta_t));
+  float r_per = ((eta_i * cos_theta_i) - (eta_t * cos_theta_t)) /
+                ((eta_i * cos_theta_i) + (eta_t * cos_theta_t));
 
-    float cos_theta_t = std::sqrt(1 - sin2_theta_t);
-    *wt = wi * - 1 * eta + n * (eta * cos_theta_i - cos_theta_t);
-
-    return true;
+  return (r_par * r_par + r_per * r_per) / 2;
 }
 
 Rgb SpecularMat::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
                           float* pdf) const {                              
-    float cos_theta_o = wo.dot_product(n);
-    float F = fr_dielectric(cos_theta_o, ni_i, ni_t);
-    float u = random_float(0.f, 1.f);
+  
+  float cos_theta_o = wo.dot_product(n);
+  Vector3 normal = n;
+  float eta_i = ni_i_;
+  float eta_t = ni_t_;
 
-    if (u < F) {
+  // Switch if stepping out of medium
+  bool entering = (cos_theta_o > 0);
+  if (!entering) {
+    std::swap(eta_i, eta_t);
+    normal = normal * -1;
+    cos_theta_o *= -1;
+  }
 
-        *wi =  n * 2 * cos_theta_o - wo;
-        float cos_theta_i = wi->dot_product(n);
-        *pdf = F;
-        return ks * F / std::abs(cos_theta_i);
+  // Snell law to compute cos_theta_o
+  float eta = eta_i / eta_t;
+  float sin2_theta_o = 1 - cos_theta_o * cos_theta_o;
+  //float sin2_theta_o = std::max(0.f, 1 - cos_theta_o * cos_theta_o);
+  float sin2_theta_i = eta * eta * sin2_theta_o;
+  float cos_theta_i = std::sqrt(1 - sin2_theta_i);
+  //float cos_theta_i = std::sqrt(std::max(0.f, 1 - sin2_theta_i));
 
-    } else {
 
-        // If stepping out of medium
-        bool entering = cos_theta_o > 0;
-        float eta_i = entering ? ni_i : ni_t;
-        float eta_t = entering ? ni_t : ni_i;
+  // Fresnel reflectance
+  float F;
+  if (sin2_theta_i >= 1.f) {
+    F = 1.f;
+  } else {
+    F = fr_dielectric(cos_theta_o, cos_theta_i, eta_i, eta_t);
+  }
 
-        Vector3 normal = n;
-        if (!entering) {
-            normal = normal * -1;
-        }
-
-        if (!refract(wo, normal, eta_i / eta_t, wi)) {
-            return Rgb(0);
-        }
-
-        Rgb ft = kt * (1 - F);
-        //float cos_theta_i = wi->dot_product(n);
-        //Rgb ft = kt * (1 - fr_dielectric(cos_theta_i, eta_i, eta_t));
-
-        // TODO : account for non-symmetry when estimating from lights (BDPT)
-        //ft /= (ni_i * ni_i) / (ni_t * ni_t);
-
-        *pdf = 1 - F;
-
-        float cos_theta_i = wi->dot_product(n);
-        return ft / std::abs(cos_theta_i);
-    }
+  // Sample reflecting or transmitted ray with probability based on F 
+  float u = random_float(0.f, 1.f);
+  if (u < F) {
+    *wi = normal * 2 * cos_theta_o - wo;
+    *pdf = F;
+    return ks_ * F / std::abs(cos_theta_i);  
+  } else {
+    *wi = wo * - 1 * eta + normal * (eta * cos_theta_o - cos_theta_i); 
+    *pdf = 1 - F;
+    return kt_ * (1 - F) / std::abs(cos_theta_i);
+  }
 }
-
-//Rgb SpecularMat::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
-//                          float* pdf) const {                              
-//
-//    
-//    float cos_theta_i = n.dot_product(wo);
-//    Vector3 normal = n;
-//    float eta_i = ni_i;
-//    float eta_t = ni_t;
-//    bool into = (cos_theta_i > 0);
-//    if (!into) {
-//        std::swap(eta_i, eta_t);
-//        normal = normal * -1;
-//        cos_theta_i *= -1;
-//    }
-//
-//    Vector3 reflection =  normal * 2 * normal.dot_product(wo) - wo;
-//    float eta = eta_i / eta_t;
-//    float sin2_theta_i = 1 - cos_theta_i * cos_theta_i;
-//    float sin2_theta_t = eta * eta * sin2_theta_i;
-//    float cos2_theta_t = 1 - sin2_theta_t;
-//    float cos_theta_t = std::sqrt(cos2_theta_t);
-//
-//    if (sin2_theta_t > 1.f) {
-//        *pdf = 1;
-//        *wi = reflection;
-//        return ks / std::abs(cos_theta_t);
-//    }
-//
-//    float r_par = ((eta_t * cos_theta_i) - (eta_i * cos_theta_t)) /
-//                  ((eta_t * cos_theta_i) + (eta_i * cos_theta_t));
-//    float r_per = ((eta_i * cos_theta_i) - (eta_t * cos_theta_t)) /
-//                  ((eta_i * cos_theta_i) + (eta_t * cos_theta_t));
-//    float F = (r_par * r_par + r_per * r_per) / 2;
-//
-//    float u = random_float(0.f, 1.f);
-//    if (u < F) {
-//
-//        *wi = reflection;
-//        *pdf = F;
-//        return ks * F / std::abs(cos_theta_i);  
-//
-//    } else {
-//
-//        if (!refract(wo, normal, eta, wi)) {
-//            return Rgb(0);
-//        }
-//
-//        *pdf = 1 - F;
-//        return kt * (1 - F) / std::abs(cos_theta_i);
-//    }
-//}
 
 }

@@ -4,9 +4,9 @@
 
 int main(int argc, char const *argv[])
 {
-    std::string f = "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/mitsuba.json";
-    //std::string f = "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/spheres.json";
-    //std::string f = "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/cornell3.json";
+    //std::string f = "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/mitsuba.json";
+    std::string f = "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/spheres.json";
+    //std::string f = "/home/jenntedra/Documents/epita/image/s8/isim/isim-raytracer/scenes/cornell2.json";
     isim::Scene* scene = isim::load_scene(f);
     scene->summary();
 

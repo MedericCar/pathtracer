@@ -7,25 +7,25 @@
 
 namespace isim {
 
-class SpecularMat : public Material
-{
-    private:
-        float pdf_constant = 1.0f;
+class SpecularMat : public Material {
 
-    public:
-        SpecularMat(Rgb _ks, float _ni, Rgb _kt)
-         : Material(Rgb(0), Rgb(0), _ks, 1, Rgb(0), _ni, _kt, 0)
-        {}
+  public:
+    SpecularMat(Rgb ks, float ni, Rgb kt)
+        : Material(Rgb(0), Rgb(0), ks, 1, Rgb(0), ni, kt, 0) {}
 
-        Rgb sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
-                     float* pdf) const;
+    Rgb sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
+                 float* pdf) const;
 
-        Vector3 sample(const Vector3& wo, const Vector3& n) const;
+    Vector3 sample(const Vector3& wo, const Vector3& n) const;
 
-        Rgb eval_bsdf(const Vector3& wo, const Vector3& wi,
-                      const Vector3& n) const;
+    Rgb eval_bsdf(const Vector3& wo, const Vector3& wi,
+                  const Vector3& n) const;
 
-        float pdf(const Vector3& wo, const Vector3& wi, const Vector3& n) const;
+    float pdf(const Vector3& wo, const Vector3& wi, const Vector3& n) const;
+
+  private:
+      float pdf_constant_ = 1.0f;
+
 };
 
 }

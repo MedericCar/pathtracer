@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "../objects/object.hh"
-#include "../objects/light.hh"
 #include "../accelerator/bvh.hh"
 #include "camera.hh"
 
