@@ -37,107 +37,23 @@ nearest_intersection(const std::vector<std::unique_ptr<Object>>& objects,
     return std::make_optional(*min);
 }
 
-
-Rgb cast_ray(const Scene &scene, const Ray& ray, int depth) {
-    Rgb color = Rgb(0); 
-    auto nearest_obj = nearest_intersection(scene.get_objects(), ray);
-
-    // Set background
-    if (!nearest_obj.has_value() && depth <= 1)
-        //return Rgb(0.66, 0.79, 1);
-        return color;
-
-    // Recursion stopping case
-    if (!nearest_obj.has_value() || depth == MAX_DEPTH)
-        return color;
-
-    const Object* obj = nearest_obj.value().first;
-    Vector3 pos = nearest_obj.value().second;
-    const Material* mat = obj->get_material(pos);
-
-    Vector3 n = obj->get_normal(pos);
-
-    for (auto const& p : scene.get_lights()) {
-        Ray light_ray = p->get_ray(pos);
-
-        // Shadows
-        auto light_inter = nearest_intersection(scene.get_objects(), light_ray);
-        if (!light_inter || light_inter.value().first != obj)
-            continue;
-
-        // Diffuse component
-        Vector3 l = light_ray.dir * -1;
-        float l_dot_n = l.dot_product(n);
-        color += mat->kd * l_dot_n; 
-
-        // Specular component
-        Vector3 r = n * 2 * l_dot_n - l;
-        float v_dot_r = (ray.dir * -1).dot_product(r);
-        color += mat->ks * std::max(0.0, pow(v_dot_r, (int) mat->ns));
-    }
-
-    // Reflection
-    Ray reflect_ray = Ray{
-        .dir = ray.dir - n * 2 * ray.dir.dot_product(n),
-        .origin = pos + n * 0.001
-    };
-
-    float k = (color.r + color.g + color.b) / 3;
-    color += cast_ray(scene, reflect_ray, depth + 1) * mat->ks * k;
-
-    return color.clamp(0.f, 1.f);
-}
-
-Rgb radiance(const Scene &scene, const Ray& ray, int depth) {
-    Rgb color = Rgb(0.0f); 
-    auto nearest_obj = nearest_intersection(scene.get_objects(), ray);
-
-    // Recursion stopping case
-    if (!nearest_obj.has_value())
-        return color;
-
-    const Object* obj = nearest_obj.value().first;
-    Vector3 pos = nearest_obj.value().second;
-    const Material* mat = obj->get_material(pos);
-    Vector3 n = obj->get_normal(pos);
-
-    // Add direct light
-    Rgb direct = mat->ke;
-    if (depth == MAX_DEPTH || direct != Rgb(0)) {
-        return direct;
-    }
-
-    // Add indirect light by sampling
-    Rgb indirect = Rgb(0);
-    Vector3 wi = mat->sample(ray.dir, n);
-    Ray sample_ray = { .dir = wi, .origin = pos + wi * 0.001 }; 
-
-    float pdf = mat->pdf(ray.dir, wi, n);
-    Rgb bsdf = mat->eval_bsdf(ray.dir, wi, n);
-    indirect += radiance(scene, sample_ray, depth + 1) * bsdf / pdf;
-
-    color = direct + indirect;
-
-    return color;
-}
-
 Rgb sample_lights(const Scene& scene, const Ray& ray_out, const Vector3& pos, 
                   const Vector3& n, const Object* target_obj,
                   const Object* hit_light, bool specular_bounce) {
 
     Rgb Ld(0);
-    for (auto const& ptr : scene.get_objects()) {  // BIG FIXME IF THERE ARE MANY OBJECTS RIP
-        const Object* l = ptr.get();
+    for (const auto& l : scene.get_lights()) {
         const Material* light_mat = l->get_material(pos);
 
-        // Dismiss if not light or taken into account in specific cases
-        if (light_mat->ke == Rgb(0) || l == hit_light) {
+        // Dismiss if already taken into account in specific cases
+        if (l == hit_light) {
             continue;
         }
 
         float pdf = 0.0f;
         Ray ray_in = l->sample(pos, pdf);
 
+        //auto nearest_obj = nearest_intersection(scene.get_objects(), ray_in);
         auto nearest_obj = scene.hit(ray_in);
         if (!nearest_obj.has_value() || nearest_obj.value().first != target_obj)
             continue;
@@ -197,7 +113,6 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
         // Direct lighting estimation
         L += throughput * sample_lights(scene, ray_out, pos, n, obj, hit_light,
                                         specular_bounce);
-        //std::cout << L;
 
         // Sampling new direction and accumulate indirect lighting estimation
         Vector3 wi;
@@ -209,9 +124,9 @@ Rgb path_trace_pbr(const Scene &scene, Ray ray_out) {
         throughput *= f * abs(wi.dot_product(n)) / pdf;
 
         if (wi.dot_product(n) < 0) {
-            ray_out = { .dir = wi.normalize(), .origin = pos - n * 0.0001 };
+            ray_out = { .dir = wi.normalize(), .origin = pos - n * 1e-4 };
         } else {
-            ray_out = { .dir = wi.normalize(), .origin = pos + n * 0.0001 };
+            ray_out = { .dir = wi.normalize(), .origin = pos + n * 1e-4 };
         }
         
         // Russian roulette to eliminate some paths
@@ -242,6 +157,7 @@ void render_aux(Image &img, const Scene &scene, std::atomic<int>& progress,
                 color += path_trace_pbr(scene, view_ray);
                 //color += radiance(scene, view_ray, 0);
             }
+
             color /= n_samples;
             
             // Whitted ray tracing

@@ -111,22 +111,6 @@ load_objects(json j, std::vector<std::shared_ptr<Material>> materials) {
     return objects;
 }
 
-std::vector<std::unique_ptr<Light>> load_lights(json j) {
-
-    std::vector<std::unique_ptr<Light>> lights;
-    
-    for (auto const& li : j.at("lights")) {                
-        
-        if (li.at("type").get<std::string>() == "point") {
-            auto p = li.at("pos").get<std::vector<float>>();
-            Vector3 pos(p[0], p[1], p[2]);
-            lights.emplace_back(std::make_unique<PointLight>(pos));
-        }
-    }
-
-    return lights;
-}
-
 void load_meshes(const std::string& obj_file, const std::string& mtl_dir,
                  std::vector<std::unique_ptr<Object>>& objects) {
 
@@ -201,7 +185,6 @@ Scene* load_scene(const std::string& filename) {
     Camera cam = load_camera(j);
     std::vector<std::shared_ptr<Material>> materials = load_materials(j);
     std::vector<std::unique_ptr<Object>> objects = load_objects(j, materials); 
-    std::vector<std::unique_ptr<Light>> lights = load_lights(j); 
 
     // Load meshes and their materials from OBJ & MTL
     auto obj_files = j.at("objFiles").get<std::vector<std::string>>();
@@ -210,7 +193,16 @@ Scene* load_scene(const std::string& filename) {
         load_meshes(f, mtl_dir, objects);
     }
 
-    return new Scene(cam, std::move(objects), std::move(lights));
+    // Create lights vector
+    std::vector<const Object*> lights; 
+    for (const auto& p : objects) {
+        const Object* obj = p.get();
+        if (obj->material->ke != Rgb(0)) {
+            lights.push_back(obj);
+        }
+    }
+
+    return new Scene(cam, std::move(objects), lights);
 }
 
 }

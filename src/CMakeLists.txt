@@ -1,5 +1,4 @@
-set(SRC_RAYTRACER "accelerator/aabb.cpp"
-                  "accelerator/bvh.cpp"
+set(SRC_RAYTRACER "accelerator/bvh.cpp"
                   "materials/diffuse.cpp"
                   "materials/material.cpp"
                   "materials/microfacet.cpp"

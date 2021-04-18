@@ -13,8 +13,6 @@ namespace isim {
 
     public :
         const std::string id;
-
-    protected :
         std::shared_ptr<Material> material;
         AABB* box = nullptr;
 

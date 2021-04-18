@@ -90,9 +90,9 @@ Ray Triangle::sample(Vector3 pos, float& pdf) const {
     Vector3 dir = (pos - sample).normalize();
     Vector3 origin;
     if (dir.dot_product(normal) < 0) {
-        origin = sample - normal * 0.0001;
+        origin = sample - normal * 1e-7;
     } else {
-        origin = sample + normal * 0.0001;
+        origin = sample + normal * 1e-7;
     }
 
     return { .dir = dir, .origin = origin };

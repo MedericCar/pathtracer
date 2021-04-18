@@ -39,18 +39,17 @@ AABB surrounding_box(const AABB& box1, const AABB& box2) {
 }
 
 BVHNode::BVHNode(std::vector<Object*> _aggregate)
- : aggregate(_aggregate), box(surrounding_box(_aggregate))
-{}
+    : aggregate(_aggregate), box(surrounding_box(_aggregate)) {}
 
 BVHNode::BVHNode(AABB _box, BVHNode* _left, BVHNode* _right)
-  : box(_box),
-    left(_left),
-    right(_right)
-{}
+    : box(_box),
+      left(_left),
+      right(_right) {}
 
 BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,                           
                         int start, int end) {
 
+    // Stopping case : construct leaves with remaining objects
     int len = end - start;
     if (len <= OBJECTS_LIM) {
         std::vector<Object*> aggregate;
@@ -62,8 +61,11 @@ BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,
         return new BVHNode(aggregate);
     }
 
+    // Else create two children by splitting sorted lists of objects
     int axis = rand() % 3;
-    std::sort(objects.begin() + start, objects.begin() + end, 
+    std::sort(
+        objects.begin() + start,
+        objects.begin() + end, 
         [axis](const std::unique_ptr<Object>& a,
                const std::unique_ptr<Object>& b) {
             return (a->get_bounding_box()->pmin[axis]
@@ -78,9 +80,9 @@ BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,
     return new BVHNode(box, left, right);
 }
 
-std::optional<std::pair<Object*, Vector3>> 
-nearest_intersection(const std::vector<Object*> objects,
-                     const Ray &ray) {
+std::optional<std::pair<Object*, Vector3>> nearest_intersection(
+    const std::vector<Object*> objects,
+    const Ray &ray) {
 
     std::vector<std::pair<Object*, Vector3>> encountered;
     for (auto obj : objects) {

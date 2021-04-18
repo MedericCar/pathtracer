@@ -6,7 +6,7 @@
 #include "../objects/object.hh"
 #include "aabb.hh"
 
-#define OBJECTS_LIM 1
+#define OBJECTS_LIM 4
 
 namespace isim {
 

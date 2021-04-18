@@ -7,10 +7,10 @@ namespace isim {
 
     Scene::Scene(const Camera& _camera,
                  std::vector<std::unique_ptr<Object>> _objects,
-                 std::vector<std::unique_ptr<Light>> _lights)
+                 std::vector<const Object*> _lights)
       : camera(_camera),
         objects(std::move(_objects)),
-        lights(std::move(_lights))
+        lights(_lights)
     {
         root_volume = construct_tree(objects, 0, objects.size());
     }
@@ -23,7 +23,7 @@ namespace isim {
         return objects;
     }
     
-    const std::vector<std::unique_ptr<Light>>& Scene::get_lights() const {
+    const std::vector<const Object*>& Scene::get_lights() const {
         return lights;
     }
 
@@ -31,8 +31,8 @@ namespace isim {
         objects.push_back(std::move(obj));
     }
 
-    void Scene::add_light(std::unique_ptr<Light> light) {
-        lights.push_back(std::move(light));
+    void Scene::add_light(const Object* light) {
+        lights.push_back(light);
     }
 
     void Scene::summary() {
