@@ -45,8 +45,7 @@ void Scene::summary() {
 }
 
 
-std::optional<std::pair<Object*, Vector3>> 
-Scene::hit(const Ray& ray) const {
+std::optional<std::pair<Object*, Vector3>> Scene::hit(const Ray& ray) const {
   return root_volume_->hit(ray, 0.001, INFINITY);
 }
 

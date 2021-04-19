@@ -8,7 +8,7 @@ class Sphere : public Object {
 
   public:
     Sphere(std::shared_ptr<Material> material, const std::string& id,
-          Vector3 center, float radius);
+           Vector3 center, float radius);
     ~Sphere() = default;
 
     std::optional<Vector3> is_intersect(const Ray& ray) const;

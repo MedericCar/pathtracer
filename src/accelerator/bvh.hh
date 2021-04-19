@@ -30,7 +30,7 @@ class BVHNode {
 };
 
 BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,                           
-    int start, int end);
+                        int start, int end);
 
 std::optional<std::pair<Object*, Vector3>> nearest_intersection(
     std::vector<Object*> objects, const Ray &ray);

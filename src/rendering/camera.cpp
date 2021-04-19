@@ -6,7 +6,6 @@ namespace isim {
 
 Vector3 const up_cam = Vector3(0, 1, 0);
 
-
 Camera::Camera(const Vector3& center, const Vector3& target, float fov,
                int img_w, int img_h) 
     : center_(center),

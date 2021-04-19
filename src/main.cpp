@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
   
   isim::render(img, *scene, n_samples);
 
-  img.save_to_ppm("scene_json_test.ppm");
+  img.save_to_ppm("result.ppm");
 
   exit(0);
 }

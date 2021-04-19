@@ -27,6 +27,7 @@ Vector3 get_maximum(const Vector3 pt0, const Vector3 pt1, const Vector3 pt2) {
 Triangle::Triangle(std::shared_ptr<Material> material, const std::string& id,
                    const Vector3& pt0, const Vector3& pt1, const Vector3& pt2)
     : Object(material, id), pt0_(pt0), pt1_(pt1), pt2_(pt2) {
+      
   edge1_ = pt1 - pt0;
   edge2_ = pt2 - pt0;
   normal_ = cross_product(edge1_, edge2_);
