@@ -5,8 +5,7 @@ Basic path tracer in C++.
 ## Examples
 ![Mirror](examples/mirror.png)
 ![Balls](examples/balls.png)
-![Metal](examples/metal.png)
-![Cornell](examples/cornell2.png)
+![Mitsuba](examples/mitsuba2.png)
 
 ## Installation
 
@@ -45,3 +44,7 @@ $ ./app -f /path/to/scene/json -n number_of_spp
 
 ## References
 - [PBR book](https://www.pbr-book.org/)
+- [Ray Tracing in One Weekend series](https://raytracing.github.io/)
+- [Article on Microfacets BRDF](https://learnopengl.com/PBR/Theory)
+- [Scratchapixel](https://www.scratchapixel.com)
+- Fundamentals Of Computer Graphics, Peter Shirley, Steve Marschner
