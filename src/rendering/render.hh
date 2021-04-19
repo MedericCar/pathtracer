@@ -8,6 +8,6 @@
 
 namespace isim {
 
-void render(Image &img, const Scene &scene);
+void render(Image &img, const Scene &scene, int n_samples);
 
 }

@@ -13,17 +13,20 @@ Vector3 SpecularMat::sample(const Vector3& wo, const Vector3& n) const {
     exit(1);
 }
 
+
 Rgb SpecularMat::eval_bsdf(const Vector3& wo, const Vector3& wi,
                            const Vector3& n) const {
     std::cerr << "Not implemented\n";
     exit(1);
 }
 
+
 float SpecularMat::pdf(const Vector3& wo, const Vector3& wi,
                        const Vector3& n) const {
     std::cerr << "Not implemented\n";
     exit(1);
 }
+
 
 float fr_dielectric(float cos_theta_i, float cos_theta_t, float eta_i,
                     float eta_t) {
@@ -37,6 +40,7 @@ float fr_dielectric(float cos_theta_i, float cos_theta_t, float eta_i,
 
   return (r_par * r_par + r_per * r_per) / 2;
 }
+
 
 Rgb SpecularMat::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
                           float* pdf) const {                              
@@ -57,11 +61,8 @@ Rgb SpecularMat::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
   // Snell law to compute cos_theta_o
   float eta = eta_i / eta_t;
   float sin2_theta_o = 1 - cos_theta_o * cos_theta_o;
-  //float sin2_theta_o = std::max(0.f, 1 - cos_theta_o * cos_theta_o);
   float sin2_theta_i = eta * eta * sin2_theta_o;
   float cos_theta_i = std::sqrt(1 - sin2_theta_i);
-  //float cos_theta_i = std::sqrt(std::max(0.f, 1 - sin2_theta_i));
-
 
   // Fresnel reflectance
   float F;

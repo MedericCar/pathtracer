@@ -4,9 +4,9 @@
 
 namespace isim {
 
-    struct Ray {
-        Vector3 dir;
-        Vector3 origin;
-    };
+struct Ray {
+    Vector3 dir;
+    Vector3 origin;
+};
     
 }

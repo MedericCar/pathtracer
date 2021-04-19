@@ -6,22 +6,21 @@
 
 namespace isim {
 
-    class Image {
-        
-        private:
-            int length;
-            std::vector<uint8_t> pixels;
+class Image {
+      
+  public:
+    Image(int h, int w);
 
-        public:
-            int h, w;
-            
-        public:
-            Image(int _h, int _w);
+    void set_pixel(int i, int j, Rgb c);
 
-            void set_pixel(int i, int j, Rgb c);
+    void save_to_ppm(std::string filename);
 
-            void save_to_ppm(std::string filename);
-    };
+    int h_, w_;
+    
+  private:
+    int length_;
+    std::vector<uint8_t> pixels_;
+};
 
 }
 

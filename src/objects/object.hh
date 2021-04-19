@@ -12,7 +12,7 @@ namespace isim {
   class Object {
 
   public:
-    Object(std::shared_ptr<Material> _material, const std::string& _id);
+    Object(std::shared_ptr<Material> material, const std::string& id);
     virtual ~Object() = default;
 
     virtual std::optional<Vector3> is_intersect(const Ray& ray) const = 0;
@@ -22,16 +22,16 @@ namespace isim {
     virtual Ray sample(Vector3 pos, float& pdf) const;
 
     inline const Material* get_material(const Vector3& pos) const {
-      return material.get();
+      return material_.get();
     }
 
     inline virtual const AABB* get_bounding_box() const { 
-      return box;
+      return box_;
     }
 
-    const std::string id;
-    std::shared_ptr<Material> material;
-    AABB* box = nullptr;
+    const std::string id_;
+    std::shared_ptr<Material> material_;
+    AABB* box_ = nullptr;
 
   };
 

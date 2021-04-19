@@ -14,16 +14,18 @@ Material::Material() {
     kt_ = Rgb(0);
 }
 
-Material::Material(Rgb _ka , Rgb _kd, Rgb _ks, float _ns, Rgb _ke, float _ni,
-                   Rgb _kt, float _roughness) 
-    : ka_(_ka),
-      kd_(_kd),
-      ks_(_ks),
-      ns_(_ns),
-      ke_(_ke),
-      ni_t_(_ni),
-      kt_(_kt), 
-      roughness_(_roughness) {}
+
+Material::Material(Rgb ka , Rgb kd, Rgb ks, float ns, Rgb ke, float ni,
+                   Rgb kt, float roughness) 
+    : ka_(ka),
+      kd_(kd),
+      ks_(ks),
+      ns_(ns),
+      ke_(ke),
+      ni_t_(ni),
+      kt_(kt), 
+      roughness_(roughness) {}
+
 
 void local_basis(const Vector3 &N, Vector3 &nt, Vector3 &nb) { 
     if (std::fabs(N.get_x()) > std::fabs(N.get_y())) {
@@ -34,6 +36,7 @@ void local_basis(const Vector3 &N, Vector3 &nt, Vector3 &nb) {
     }
     nb = cross_product(N, nt); 
 } 
+
 
 Vector3 uniform_sample_hemisphere(const Vector3& n) {
     
@@ -51,22 +54,25 @@ Vector3 uniform_sample_hemisphere(const Vector3& n) {
     local_basis(n, nt, nb);
 
     Vector3 world_dir( 
-        dir.x * nb.x + dir.y * n.x + dir.z * nt.x, 
-        dir.x * nb.y + dir.y * n.y + dir.z * nt.y, 
-        dir.x * nb.z + dir.y * n.z + dir.z * nt.z
+        dir.x_ * nb.x_ + dir.y_ * n.x_ + dir.z_ * nt.x_, 
+        dir.x_ * nb.y_ + dir.y_ * n.y_ + dir.z_ * nt.y_, 
+        dir.x_ * nb.z_ + dir.y_ * n.z_ + dir.z_ * nt.z_
     );
 
     return world_dir;
 }
 
+
 Vector3 Material::sample(const Vector3& wo, const Vector3& n) const { 
     return uniform_sample_hemisphere(n);    
 }
+
 
 float Material::pdf(const Vector3& wo, const Vector3& wi,
                        const Vector3& n) const {
     return pdf_constant_;
 }
+
 
 Rgb Material::sample_f(const Vector3& wo, const Vector3& n, Vector3* wi,
                        float* pdf) const {

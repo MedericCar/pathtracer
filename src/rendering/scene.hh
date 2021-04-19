@@ -8,31 +8,30 @@
 
 namespace isim {
 
-    class Scene {
-    
-    private:
-        std::vector<std::unique_ptr<Object>> objects;
-        std::vector<const Object*> lights;
-        BVHNode* root_volume;
-        Camera camera;
+class Scene {
 
-    public:
-        Scene(const Camera& camera);
-        Scene(const Camera& camera,
-              std::vector<std::unique_ptr<Object>> objects,
-              std::vector<const Object*> lights);
+  public:
+    Scene(const Camera& camera);
+    Scene(const Camera& camera, std::vector<std::unique_ptr<Object>> objects,
+          std::vector<const Object*> lights);
 
-        const Camera& get_camera() const;
-        const std::vector<std::unique_ptr<Object>>& get_objects() const;
-        const std::vector<const Object*>& get_lights() const;
+    const Camera& get_camera() const;
+    const std::vector<std::unique_ptr<Object>>& get_objects() const;
+    const std::vector<const Object*>& get_lights() const;
 
-        void add_object(std::unique_ptr<Object> obj);
-        void add_light(const Object* light);
+    void add_object(std::unique_ptr<Object> obj);
+    void add_light(const Object* light);
 
-        void summary();
+    void summary();
 
-        std::optional<std::pair<Object*, Vector3>> hit(const Ray& ray) const;
+    std::optional<std::pair<Object*, Vector3>> hit(const Ray& ray) const;
 
-    };
+  private:
+    std::vector<std::unique_ptr<Object>> objects_;
+    std::vector<const Object*> lights_;
+    BVHNode* root_volume_;
+    Camera camera_;
+
+};
 
 }

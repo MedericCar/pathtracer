@@ -5,22 +5,24 @@
 
 namespace isim {
 
-Sphere::Sphere(std::shared_ptr<Material> _material, const std::string& _id, 
-                Vector3 _center, float _radius)
-    : Object(_material, _id), center(_center), radius(_radius) {
-  box = new AABB(
+Sphere::Sphere(std::shared_ptr<Material> material, const std::string& id, 
+               Vector3 center, float radius)
+    : Object(material, id), center_(center), radius_(radius) {
+
+  box_ = new AABB(
     center - Vector3(radius, radius, radius),
     center + Vector3(radius, radius, radius)
   );
 }
 
+
 std::optional<Vector3> Sphere::is_intersect(const Ray& ray) const {
 
-  Vector3 oc = center - ray.origin;
+  Vector3 oc = center_ - ray.origin;
   float d_om = oc.dot_product(ray.dir);
   float d_cm_2 = oc.dot_product(oc) - d_om * d_om;
   
-  float radius2 = radius * radius;
+  float radius2 = radius_ * radius_;
   if (d_cm_2 > radius2) {
     return std::nullopt; // line of the ray is outside of the sphere
   }

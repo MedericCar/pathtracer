@@ -9,42 +9,46 @@ AABB surrounding_box(const std::vector<Object*> objects) {
   Vector3 pmax = Vector3(-INFINITY, -INFINITY, -INFINITY);
 
   for (auto const& obj : objects) {
-    pmin.x = std::min(pmin.x, obj->get_bounding_box()->pmin_.x);
-    pmin.y = std::min(pmin.y, obj->get_bounding_box()->pmin_.y);
-    pmin.z = std::min(pmin.z, obj->get_bounding_box()->pmin_.z);
+    pmin.x_ = std::min(pmin.x_, obj->get_bounding_box()->pmin_.x_);
+    pmin.y_ = std::min(pmin.y_, obj->get_bounding_box()->pmin_.y_);
+    pmin.z_ = std::min(pmin.z_, obj->get_bounding_box()->pmin_.z_);
 
-    pmax.x = std::max(pmax.x, obj->get_bounding_box()->pmax_.x);
-    pmax.y = std::max(pmax.y, obj->get_bounding_box()->pmax_.y);
-    pmax.z = std::max(pmax.z, obj->get_bounding_box()->pmax_.z);
+    pmax.x_ = std::max(pmax.x_, obj->get_bounding_box()->pmax_.x_);
+    pmax.y_ = std::max(pmax.y_, obj->get_bounding_box()->pmax_.y_);
+    pmax.z_ = std::max(pmax.z_, obj->get_bounding_box()->pmax_.z_);
   }
 
   return AABB(pmin, pmax);
 }
 
+
 AABB surrounding_box(const AABB& box1, const AABB& box2) {
 
   Vector3 pmin(
-    std::min(box1.pmin_.x, box2.pmin_.x),
-    std::min(box1.pmin_.y, box2.pmin_.y),
-    std::min(box1.pmin_.z, box2.pmin_.z)
+    std::min(box1.pmin_.x_, box2.pmin_.x_),
+    std::min(box1.pmin_.y_, box2.pmin_.y_),
+    std::min(box1.pmin_.z_, box2.pmin_.z_)
   );
 
   Vector3 pmax(
-    std::max(box1.pmax_.x, box2.pmax_.x),
-    std::max(box1.pmax_.y, box2.pmax_.y),
-    std::max(box1.pmax_.z, box2.pmax_.z)
+    std::max(box1.pmax_.x_, box2.pmax_.x_),
+    std::max(box1.pmax_.y_, box2.pmax_.y_),
+    std::max(box1.pmax_.z_, box2.pmax_.z_)
   );
 
   return AABB(pmin, pmax);
 }
 
+
 BVHNode::BVHNode(std::vector<Object*> aggregate)
     : aggregate_(aggregate), box_(surrounding_box(aggregate)) {}
+
 
 BVHNode::BVHNode(AABB box, BVHNode* left, BVHNode* right)
     : box_(box),
       left_(left),
       right_(right) {}
+
 
 BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,                           
                         int start, int end) {
@@ -77,6 +81,7 @@ BVHNode* construct_tree(std::vector<std::unique_ptr<Object>>& objects,
   return new BVHNode(box, left, right);
 }
 
+
 std::optional<std::pair<Object*, Vector3>> nearest_intersection(
     const std::vector<Object*> objects,
     const Ray &ray) {
@@ -103,6 +108,7 @@ std::optional<std::pair<Object*, Vector3>> nearest_intersection(
 
   return std::make_optional(*min);
 }
+
 
 std::optional<std::pair<Object*, Vector3>> BVHNode::hit(const Ray& ray,
                                                         float t_min,

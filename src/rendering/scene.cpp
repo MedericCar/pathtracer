@@ -2,47 +2,53 @@
 
 namespace isim {
 
-    Scene::Scene(const Camera& _camera) : camera(_camera) {}
+Scene::Scene(const Camera& camera) : camera_(camera) {}
 
 
-    Scene::Scene(const Camera& _camera,
-                 std::vector<std::unique_ptr<Object>> _objects,
-                 std::vector<const Object*> _lights)
-      : camera(_camera),
-        objects(std::move(_objects)),
-        lights(_lights)
-    {
-        root_volume = construct_tree(objects, 0, objects.size());
-    }
-    
-    const Camera& Scene::get_camera() const {
-        return camera;
-    }
+Scene::Scene(const Camera& camera, std::vector<std::unique_ptr<Object>> objects,
+             std::vector<const Object*> lights)
+    : camera_(camera),
+      objects_(std::move(objects)),
+      lights_(lights) {
 
-    const std::vector<std::unique_ptr<Object>>& Scene::get_objects() const {
-        return objects;
-    }
-    
-    const std::vector<const Object*>& Scene::get_lights() const {
-        return lights;
-    }
+  root_volume_ = construct_tree(objects_, 0, objects_.size());
+}
 
-    void Scene::add_object(std::unique_ptr<Object> obj) {
-        objects.push_back(std::move(obj));
-    }
 
-    void Scene::add_light(const Object* light) {
-        lights.push_back(light);
-    }
+const Camera& Scene::get_camera() const {
+  return camera_;
+}
 
-    void Scene::summary() {
-        std::cout << "N objects : " << objects.size() << "\n";
-    }
 
-    std::optional<std::pair<Object*, Vector3>> 
-    Scene::hit(const Ray& ray) const {
-        return root_volume->hit(ray, 0.001, INFINITY);
-    }
+const std::vector<std::unique_ptr<Object>>& Scene::get_objects() const {
+  return objects_;
+}
+
+
+const std::vector<const Object*>& Scene::get_lights() const {
+  return lights_;
+}
+
+
+void Scene::add_object(std::unique_ptr<Object> obj) {
+  objects_.push_back(std::move(obj));
+}
+
+
+void Scene::add_light(const Object* light) {
+  lights_.push_back(light);
+}
+
+
+void Scene::summary() {
+  std::cout << "N objects : " << objects_.size() << "\n";
+}
+
+
+std::optional<std::pair<Object*, Vector3>> 
+Scene::hit(const Ray& ray) const {
+  return root_volume_->hit(ray, 0.001, INFINITY);
+}
 
 }
 

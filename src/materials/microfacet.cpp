@@ -18,15 +18,18 @@ float D(float NoH, float a) {
   return a2 / denom;
 }
 
+
 // Schlick approximation of the Fresnel reflectance
 Rgb F(float NoH, Rgb f0) {
   return f0 + (Rgb(1) - f0) * std::pow(1.f - NoH, 5);
 }
 
+
 // Schlick-Beckmann approximation
 float schlick_GGX(float u, float k) {
   return u / (u * (1.f - k) + k);
 }
+
 
 // Surface area where the micro-surface details overshadow each other (occlusion)
 float G(float NoV, float NoL, float a) {
@@ -36,6 +39,7 @@ float G(float NoV, float NoL, float a) {
 
   return ggx1 / ggx2;
 }
+
 
 Rgb MicrofacetMat::eval_bsdf(const Vector3& wo, const Vector3& wi,
                              const Vector3& n) const {
